@@ -148,3 +148,35 @@ Milestone 4 — Quiz Mode (afventer godkendelse)
 
 ## Næste milestone
 Milestone 5 — Cloze Mode (afventer godkendelse)
+
+---
+
+## 2026-06-02
+
+## Milestone 5 — Cloze Mode
+
+## Implementerede funktioner
+- `ClozeGenerator` — genererer fill-in-the-blank opgaver fra rapportens sektioner og begrebsdatabasen; foretrækker høj-vægt begreber og kontekstrige sætninger; maks ét spørgsmål per begreb
+- `ClozeEvaluator` — 3-trins svarvalidering: eksakt match, normaliseret match, 80%-præfiksmatch (halvt point)
+- `cloze.php` — interaktiv Cloze-side med tekstinput, hint-funktion (første bogstav + længde), Enter-tast support, feedback og XP-display
+- `cloze_check.php` — AJAX-endpoint der evaluerer svar server-side via ClozeEvaluator
+- Hint-system viser første bogstav og ordlængde uden at afsløre svaret
+- XP-integration via eksisterende `xp_update.php`
+
+## Oprettede filer
+- `src/Cloze/ClozeGenerator.php`
+- `src/Cloze/ClozeEvaluator.php`
+- `public/cloze.php`
+- `public/cloze_check.php`
+
+## Ændrede filer
+- Ingen
+
+## Databaseændringer
+- Brug af `cloze_sets` og `cloze_questions` (INSERT ved generering, DELETE ved regenerering)
+
+## Kendte problemer
+- Ingen
+
+## Næste milestone
+Milestone 6 — Boss Battle (afventer godkendelse)
