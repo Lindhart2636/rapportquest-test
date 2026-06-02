@@ -114,3 +114,37 @@ Milestone 3 — Rapportanalyse og Begrebsdatabase (afventer godkendelse)
 
 ## Næste milestone
 Milestone 4 — Quiz Mode (afventer godkendelse)
+
+---
+
+## 2026-06-02
+
+## Milestone 4 — Quiz Mode
+
+## Implementerede funktioner
+- `QuizGenerator` — genererer op til 20 multiple-choice spørgsmål i 3 typer: definition, kategori og applikation
+- Distraktorsvar vælges automatisk fra andre begreber i begrebsdatabasen
+- Spørgsmål og svar gemmes i `quiz_sets` + `quiz_questions` tabellerne
+- `XpManager` — håndterer XP og level-progression (10 level-tærskler)
+- `quiz.php` — interaktiv quizside med feedback, progressbar, XP-display og resultatskærm
+- `xp_update.php` — AJAX-endpoint til XP-opdatering efter quiz-gennemførelse
+- Level op-besked vises ved nyt level
+
+## Oprettede filer
+- `src/Quiz/QuizGenerator.php`
+- `src/Gamification/XpManager.php`
+- `public/quiz.php`
+- `public/xp_update.php`
+
+## Ændrede filer
+- Ingen
+
+## Databaseændringer
+- Brug af `quiz_sets` og `quiz_questions` (INSERT ved generering, DELETE ved regenerering)
+- Brug af `progress` via XpManager (INSERT/UPDATE)
+
+## Kendte problemer
+- Ingen
+
+## Næste milestone
+Milestone 5 — Cloze Mode (afventer godkendelse)
