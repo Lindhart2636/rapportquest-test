@@ -213,3 +213,35 @@ Milestone 6 — Boss Battle (afventer godkendelse)
 
 ## Næste milestone
 Milestone 7 — Gamification (afventer godkendelse)
+
+---
+
+## 2026-06-02
+
+## Milestone 7 — Gamification
+
+## Implementerede funktioner
+- `StreakManager` — daglig aktivitets-streak med 3 regler: samme dag (uændret), dag-efter (streak+1), gap (reset til 1)
+- `BadgeManager` — 11 badges: first_upload, first_quiz, first_cloze, first_boss, level_5, level_10, streak_3, streak_7, streak_30, perfectionist, boss_slayer
+- `LevelDefinitions` — 10 level-titler med ikoner: Nybegynder → Eksamensklar
+- `xp_update.php` opdateret — returnerer nu streak, new_badges og korrekt XP-pct inden for nuværende level-interval
+- `gamification.php` — dedikeret side med level-display, XP-progressbar, streak-kort, level-oversigt (roadmap) og badge-grid (optjent/låst)
+
+## Oprettede filer
+- `src/Gamification/StreakManager.php`
+- `src/Gamification/BadgeManager.php`
+- `src/Gamification/LevelDefinitions.php`
+- `public/gamification.php`
+
+## Ændrede filer
+- `public/xp_update.php` (streak + badges + korrekt XP-pct)
+
+## Databaseændringer
+- Brug af `badges`-tabellen (INSERT ved tildeling)
+- `progress`-tabellens `streak`-kolonne bruges aktivt
+
+## Kendte problemer
+- Ingen
+
+## Næste milestone
+Milestone 8 — Dashboard (afventer godkendelse)
