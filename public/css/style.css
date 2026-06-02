@@ -246,3 +246,150 @@ body {
     color: var(--text-muted);
     font-size: .875rem;
 }
+
+/* ---- Top navigation ---- */
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: .6rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.nav-brand {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--primary);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-links {
+    display: flex;
+    gap: .25rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.nav-link {
+    padding: .35rem .65rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: .875rem;
+    font-weight: 500;
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+}
+
+.nav-link:hover  { background: var(--bg); color: var(--primary); }
+.nav-link.active { background: #ede9fe; color: var(--primary); font-weight: 700; }
+
+/* ================================================================
+   RESPONSIVE — Mobile & Tablet
+   ================================================================ */
+
+/* Tablet (≤ 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.25rem .75rem;
+    }
+
+    .logo h1 {
+        font-size: 1.75rem;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .drop-zone {
+        padding: 1.75rem 1rem;
+    }
+}
+
+/* Mobile (≤ 480px) */
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 1.5rem;
+    }
+
+    .logo-icon {
+        font-size: 2rem;
+    }
+
+    .tagline {
+        font-size: .95rem;
+    }
+
+    .upload-card h2 {
+        font-size: 1.25rem;
+    }
+
+    .btn-submit {
+        font-size: .95rem;
+        padding: .75rem;
+    }
+
+    /* Quiz / Cloze / Boss options stack on mobile */
+    .options-grid {
+        gap: .5rem;
+    }
+
+    .option-btn {
+        padding: .75rem .85rem;
+        font-size: .9rem;
+    }
+
+    /* Dashboard grid single column */
+    .dashboard-grid,
+    .gami-grid,
+    .analysis-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Action buttons stack */
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    /* Modes grid 1 column */
+    .modes-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Cloze input wrap stack */
+    .cloze-input-wrap {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .check-btn {
+        width: 100%;
+    }
+
+    /* Boss textarea */
+    .boss-textarea {
+        min-height: 110px;
+    }
+
+    /* Submit btn full width on boss */
+    .submit-btn {
+        width: 100%;
+    }
+
+    /* Breakdown table: hide bar on small screens */
+    .breakdown-bar-wrap {
+        display: none;
+    }
+}

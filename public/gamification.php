@@ -190,6 +190,7 @@ $earnedTypes = array_column($earned, 'type');
     </style>
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
 <div class="container">
     <header class="site-header" style="margin-bottom:1rem;">
         <div class="logo">

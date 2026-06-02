@@ -214,6 +214,7 @@ unset($q);
     </style>
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
 <div class="container">
     <div class="boss-intro">
         <div style="font-size:3rem;margin-bottom:.5rem;">⚔️</div>

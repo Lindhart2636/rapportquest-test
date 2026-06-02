@@ -266,6 +266,7 @@ function examScoreLabel(int $score): string
     </style>
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
 <div class="container">
     <header class="site-header" style="margin-bottom:1.25rem;">
         <div class="logo">

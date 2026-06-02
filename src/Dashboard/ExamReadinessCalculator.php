@@ -22,10 +22,10 @@ class ExamReadinessCalculator
     private const WEIGHT_BOSS     = 0.25;
     private const WEIGHT_ACTIVITY = 0.10;
 
-    // XP thresholds considered "complete" for each category
-    private const QUIZ_XP_TARGET     = 200;   // 20 quiz questions × 10 points
-    private const CLOZE_XP_TARGET    = 100;   // 20 cloze questions × 5 points
-    private const BOSS_XP_TARGET     = 500;   // 10 boss questions × 50 points
+    // Question count targets considered "complete" for each category
+    private const QUIZ_Q_TARGET      = 10;    // 10 quiz questions = full quiz score
+    private const CLOZE_Q_TARGET     = 10;    // 10 cloze questions = full cloze score
+    private const BOSS_Q_TARGET      = 5;     // 5 boss questions = full boss score
     private const ACTIVITY_DAY_TARGET = 7;    // 7-day streak = full activity score
 
     private PDO $pdo;
@@ -49,10 +49,10 @@ class ExamReadinessCalculator
     {
         $stats = $this->gatherStats($sessionId, $reportId);
 
-        $quizRatio     = min(1.0, $stats['quiz_xp']     / self::QUIZ_XP_TARGET);
-        $clozeRatio    = min(1.0, $stats['cloze_xp']    / self::CLOZE_XP_TARGET);
-        $bossRatio     = min(1.0, $stats['boss_xp']     / self::BOSS_XP_TARGET);
-        $activityRatio = min(1.0, $stats['streak_days'] / self::ACTIVITY_DAY_TARGET);
+        $quizRatio     = min(1.0, $stats['quiz_count']   / self::QUIZ_Q_TARGET);
+        $clozeRatio    = min(1.0, $stats['cloze_count']  / self::CLOZE_Q_TARGET);
+        $bossRatio     = min(1.0, $stats['boss_count']   / self::BOSS_Q_TARGET);
+        $activityRatio = min(1.0, $stats['streak_days']  / self::ACTIVITY_DAY_TARGET);
 
         $quizScore     = (int) round($quizRatio     * 100);
         $clozeScore    = (int) round($clozeRatio    * 100);
@@ -78,21 +78,21 @@ class ExamReadinessCalculator
                     'score'    => $quizScore,
                     'weight'   => '40%',
                     'weighted' => (int) round($quizScore * self::WEIGHT_QUIZ),
-                    'detail'   => $stats['quiz_xp'] . ' / ' . self::QUIZ_XP_TARGET . ' XP',
+                    'detail'   => $stats['quiz_count'] . ' / ' . self::QUIZ_Q_TARGET . ' spørgsmål',
                 ],
                 [
                     'label'    => 'Cloze Mode',
                     'score'    => $clozeScore,
                     'weight'   => '25%',
                     'weighted' => (int) round($clozeScore * self::WEIGHT_CLOZE),
-                    'detail'   => $stats['cloze_xp'] . ' / ' . self::CLOZE_XP_TARGET . ' XP',
+                    'detail'   => $stats['cloze_count'] . ' / ' . self::CLOZE_Q_TARGET . ' opgaver',
                 ],
                 [
                     'label'    => 'Boss Battle',
                     'score'    => $bossScore,
                     'weight'   => '25%',
                     'weighted' => (int) round($bossScore * self::WEIGHT_BOSS),
-                    'detail'   => $stats['boss_xp'] . ' / ' . self::BOSS_XP_TARGET . ' XP',
+                    'detail'   => $stats['boss_count'] . ' / ' . self::BOSS_Q_TARGET . ' spørgsmål',
                 ],
                 [
                     'label'    => 'Aktivitet',
@@ -116,28 +116,18 @@ class ExamReadinessCalculator
         $progress->execute([':sid' => $sessionId]);
         $prog = $progress->fetch() ?: ['xp' => 0, 'level' => 1, 'streak' => 0];
 
-        $totalXp = (int) $prog['xp'];
-
-        // Distribute XP by activity weights for scoring
-        $quizXp  = (int) round($totalXp * self::WEIGHT_QUIZ);
-        $clozeXp = (int) round($totalXp * self::WEIGHT_CLOZE);
-        $bossXp  = (int) round($totalXp * self::WEIGHT_BOSS);
-
-        // Count quiz questions answered
-        $quizCount = $this->countQuizAnswered($reportId);
+        $totalXp    = (int) $prog['xp'];
+        $quizCount  = $this->countQuizAnswered($reportId);
         $clozeCount = $this->countClozeAnswered($reportId);
         $bossCount  = $this->countBossAnswered($reportId);
 
         return [
             'total_xp'    => $totalXp,
-            'level'        => (int) $prog['level'],
-            'streak_days'  => (int) $prog['streak'],
-            'quiz_xp'      => $quizXp,
-            'cloze_xp'     => $clozeXp,
-            'boss_xp'      => $bossXp,
-            'quiz_count'   => $quizCount,
-            'cloze_count'  => $clozeCount,
-            'boss_count'   => $bossCount,
+            'level'       => (int) $prog['level'],
+            'streak_days' => (int) $prog['streak'],
+            'quiz_count'  => $quizCount,
+            'cloze_count' => $clozeCount,
+            'boss_count'  => $bossCount,
         ];
     }
 

@@ -6,6 +6,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
 use RapportQuest\Analysis\ReportAnalyser;
+use RapportQuest\Gamification\BadgeManager;
+use RapportQuest\Gamification\XpManager;
+use RapportQuest\Gamification\StreakManager;
+
+session_start();
 
 $reportId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -31,6 +36,18 @@ if (!$report) {
 
 $analysisResult = null;
 $analysisError  = null;
+
+$sessionId = session_id();
+
+// Award first_upload badge and record streak on first visit
+try {
+    $xpManager     = new XpManager($pdo);
+    $streakManager = new StreakManager($pdo);
+    $badgeManager  = new BadgeManager($pdo);
+    $xpManager->getProgress($sessionId); // ensure progress row exists
+    $streakManager->recordActivity($sessionId);
+    $badgeManager->checkAndAward($sessionId, ['uploaded' => true]);
+} catch (Throwable) {}
 
 // Run analysis if not already done
 if (in_array($report['status'], ['pending', 'error'], true)) {
@@ -188,6 +205,7 @@ $fileSizeKB = round(($report['file_size'] ?? 0) / 1024, 1);
     </style>
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="container">
         <header class="site-header">
             <div class="logo">

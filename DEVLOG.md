@@ -280,3 +280,49 @@ Milestone 8 — Dashboard (afventer godkendelse)
 
 ## Næste milestone
 Milestone 9 — QA og Optimering (afventer godkendelse)
+
+---
+
+## 2026-06-02
+
+## Milestone 9 — QA og Optimering
+
+## Bugfixes
+- `analyse.php`: Manglede `session_start()` — fixed; tilføjet first_upload badge og streak-registrering ved første analyse
+- `ExamReadinessCalculator`: Brugte XP-proxy til scoring — rettet til at bruge faktisk antal spørgsmål (quiz/cloze/boss) som målestok
+
+## Performanceoptimering
+- Composer autoload allerede optimeret (`optimize-autoloader: true`)
+- DB-queries bruger prepared statements konsekvent
+- Nav-include bruges fremfor gentagen HTML
+
+## Browserkompatibilitet
+- Alle sider har `<meta viewport>` — bekræftet
+- CSS bruger standard egenskaber (flex, grid, CSS custom properties) med bred browserkompatibilitet
+- Progressbar bruger `accent-color` med graceful fallback
+- Alle PHP-filer tjekket: ingen syntax-fejl (php -l)
+
+## Mobiloptimering
+- Tilføjet to CSS breakpoints: tablet (≤768px) og mobil (≤480px)
+- Mobil: alle grids single-column, action-buttons stacker, cloze-input stacker, boss-textarea kompakt
+- Breakdown-tabel skjuler bars på mobilskærme
+
+## Ny navigation
+- `nav.php` — fælles sticky top-navigation med aktiv-markering på alle sider
+- Navigation tilføjet til: quiz, cloze, boss, dashboard, gamification, analyse
+
+## Oprettede filer
+- `public/nav.php`
+
+## Ændrede filer
+- `public/css/style.css` (nav-styles + 2 responsive breakpoints)
+- `public/analyse.php` (session_start + badge + streak)
+- `public/xp_update.php` (streak + badges returneret)
+- `src/Dashboard/ExamReadinessCalculator.php` (spørgsmålsbaseret scoring)
+- `public/quiz.php`, `public/cloze.php`, `public/boss.php`, `public/dashboard.php`, `public/gamification.php` (nav include)
+
+## Kendte problemer
+- Ingen
+
+## Næste milestone
+Alle milestones gennemført ✅
