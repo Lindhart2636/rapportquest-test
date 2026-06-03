@@ -148,15 +148,18 @@ $reportId = 0;
             gap: .75rem;
         }
         .profile-avatar {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            max-width: 200px;
+            aspect-ratio: 1;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--primary);
             box-shadow: 0 0 20px rgba(124,58,237,.55);
         }
         .avatar-placeholder {
-            width: 100px; height: 100px;
+            width: 100%;
+            max-width: 200px;
+            aspect-ratio: 1;
             border-radius: 50%;
             background: var(--bg);
             border: 3px dashed var(--primary);
@@ -181,13 +184,14 @@ $reportId = 0;
         /* XP bar */
         .xp-bar-wrap { width: 100%; padding: 0 .1rem; }
         .xp-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-bottom: .4rem; white-space: nowrap; }
-        .xp-bar { height: 20px; background: rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
-        .xp-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 10px; transition: width .6s; min-width: 4px; }
+        .xp-bar { height: 100px; background: rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+        .xp-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 12px; transition: width .6s; min-width: 4px; }
 
         /* Clickable profile avatar */
         .profile-avatar-btn {
             position: relative; cursor: pointer;
-            display: inline-block;
+            display: flex; justify-content: center;
+            width: 100%;
         }
         .profile-avatar-btn::after {
             content: '✏️';
