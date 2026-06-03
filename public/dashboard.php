@@ -5,10 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Gamification\XpManager;
-use RapportQuest\Gamification\BadgeManager;
-use RapportQuest\Gamification\LevelDefinitions;
-use RapportQuest\Dashboard\ExamReadinessCalculator;
+use ExamQuest\Gamification\XpManager;
+use ExamQuest\Gamification\BadgeManager;
+use ExamQuest\Gamification\LevelDefinitions;
+use ExamQuest\Dashboard\ExamReadinessCalculator;
 
 session_start();
 
@@ -91,7 +91,7 @@ function examScoreLabel(int $score): string
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Dashboard</title>
+    <title>ExamQuest — Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .dashboard-grid {

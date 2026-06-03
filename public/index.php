@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Upload din rapport</title>
+    <title>ExamQuest — Upload din rapport</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <header class="site-header">
             <div class="logo">
                 <span class="logo-icon">📜</span>
-                <h1>RapportQuest</h1>
+                <h1>ExamQuest</h1>
             </div>
             <p class="tagline">Gør din rapport til et læringsforløb</p>
         </header>
@@ -21,7 +21,7 @@
             <div class="upload-card">
                 <h2>Upload din rapport</h2>
                 <p class="upload-description">
-                    Upload en PDF-rapport og RapportQuest genererer automatisk quiz-spørgsmål,
+                    Upload en PDF-rapport og ExamQuest genererer automatisk quiz-spørgsmål,
                     udfyldningsopgaver og en boss-battle ud fra indholdet.
                 </p>
 
@@ -85,7 +85,7 @@
                 &nbsp;·&nbsp;
                 <a href="gamification.php" style="color:var(--primary);font-weight:600;text-decoration:none;">🏆 Gamification</a>
                 &nbsp;·&nbsp;
-                &copy; 2026 RapportQuest
+                &copy; 2026 ExamQuest
             </p>
         </footer>
     </div>

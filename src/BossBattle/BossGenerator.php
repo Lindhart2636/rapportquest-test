@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\BossBattle;
+namespace ExamQuest\BossBattle;
 
 use PDO;
 

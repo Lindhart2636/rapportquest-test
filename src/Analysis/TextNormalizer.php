@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Analysis;
+namespace ExamQuest\Analysis;
 
 /**
  * Normalises raw PDF text for consistent matching and analysis.

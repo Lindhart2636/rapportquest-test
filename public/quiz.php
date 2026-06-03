@@ -5,8 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Quiz\QuizGenerator;
-use RapportQuest\Gamification\XpManager;
+use ExamQuest\Quiz\QuizGenerator;
+use ExamQuest\Gamification\XpManager;
 
 session_start();
 
@@ -77,7 +77,7 @@ if ($quizSet) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Quiz</title>
+    <title>ExamQuest — Quiz</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .quiz-header {

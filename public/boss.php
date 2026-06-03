@@ -5,8 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\BossBattle\BossGenerator;
-use RapportQuest\Gamification\XpManager;
+use ExamQuest\BossBattle\BossGenerator;
+use ExamQuest\Gamification\XpManager;
 
 session_start();
 
@@ -66,7 +66,7 @@ unset($q);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Boss Battle</title>
+    <title>ExamQuest — Boss Battle</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .boss-header {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use RapportQuest\Cloze\ClozeEvaluator;
+use ExamQuest\Cloze\ClozeEvaluator;
 
 header('Content-Type: application/json; charset=utf-8');
 

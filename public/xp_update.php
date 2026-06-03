@@ -5,9 +5,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Gamification\XpManager;
-use RapportQuest\Gamification\StreakManager;
-use RapportQuest\Gamification\BadgeManager;
+use ExamQuest\Gamification\XpManager;
+use ExamQuest\Gamification\StreakManager;
+use ExamQuest\Gamification\BadgeManager;
 
 session_start();
 

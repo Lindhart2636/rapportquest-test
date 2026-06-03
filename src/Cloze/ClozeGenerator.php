@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Cloze;
+namespace ExamQuest\Cloze;
 
 use PDO;
 

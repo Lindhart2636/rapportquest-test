@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Analysis;
+namespace ExamQuest\Analysis;
 
 /**
  * Computes a 0-100 relevance score for each matched concept.

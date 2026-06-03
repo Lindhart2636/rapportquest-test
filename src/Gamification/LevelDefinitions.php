@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Gamification;
+namespace ExamQuest\Gamification;
 
 /**
  * Human-readable level titles and XP thresholds.

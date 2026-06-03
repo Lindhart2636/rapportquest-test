@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Dashboard;
+namespace ExamQuest\Dashboard;
 
 use PDO;
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Cloze\ClozeGenerator;
-use RapportQuest\Gamification\XpManager;
+use ExamQuest\Cloze\ClozeGenerator;
+use ExamQuest\Gamification\XpManager;
 
 session_start();
 
@@ -67,7 +67,7 @@ if ($clozeSet) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Cloze Mode</title>
+    <title>ExamQuest — Cloze Mode</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .cloze-header {

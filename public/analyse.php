@@ -5,10 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Analysis\ReportAnalyser;
-use RapportQuest\Gamification\BadgeManager;
-use RapportQuest\Gamification\XpManager;
-use RapportQuest\Gamification\StreakManager;
+use ExamQuest\Analysis\ReportAnalyser;
+use ExamQuest\Gamification\BadgeManager;
+use ExamQuest\Gamification\XpManager;
+use ExamQuest\Gamification\StreakManager;
 
 session_start();
 
@@ -99,7 +99,7 @@ $fileSizeKB = round(($report['file_size'] ?? 0) / 1024, 1);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Analyse</title>
+    <title>ExamQuest — Analyse</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .analysis-grid {
@@ -210,7 +210,7 @@ $fileSizeKB = round(($report['file_size'] ?? 0) / 1024, 1);
         <header class="site-header">
             <div class="logo">
                 <span class="logo-icon">📜</span>
-                <h1>RapportQuest</h1>
+                <h1>ExamQuest</h1>
             </div>
             <p class="tagline">Gør din rapport til et læringsforløb</p>
         </header>
@@ -297,7 +297,7 @@ $fileSizeKB = round(($report['file_size'] ?? 0) / 1024, 1);
         </main>
 
         <footer class="site-footer">
-            <p>&copy; 2026 RapportQuest</p>
+            <p>&copy; 2026 ExamQuest</p>
         </footer>
     </div>
 </body>

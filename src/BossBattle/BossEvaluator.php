@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\BossBattle;
+namespace ExamQuest\BossBattle;
 
 /**
  * Evaluates a free-text answer against a model answer using keyword matching and relevance scoring.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Analysis;
+namespace ExamQuest\Analysis;
 
 use Smalot\PdfParser\Parser;
 

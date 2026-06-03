@@ -1,6 +1,6 @@
 {
-    "name": "rapportquest/rapportquest",
-    "description": "RapportQuest — PDF rapport til interaktivt læringsforløb",
+    "name": "examquest/examquest",
+    "description": "ExamQuest — PDF rapport til interaktivt læringsforløb",
     "type": "project",
     "require": {
         "php": ">=8.0",
@@ -8,7 +8,7 @@
     },
     "autoload": {
         "psr-4": {
-            "RapportQuest\\": "src/"
+            "ExamQuest\\": "src/"
         }
     },
     "config": {

@@ -5,10 +5,10 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use RapportQuest\Gamification\XpManager;
-use RapportQuest\Gamification\StreakManager;
-use RapportQuest\Gamification\BadgeManager;
-use RapportQuest\Gamification\LevelDefinitions;
+use ExamQuest\Gamification\XpManager;
+use ExamQuest\Gamification\StreakManager;
+use ExamQuest\Gamification\BadgeManager;
+use ExamQuest\Gamification\LevelDefinitions;
 
 session_start();
 
@@ -43,7 +43,7 @@ $earnedTypes = array_column($earned, 'type');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapportQuest — Gamification</title>
+    <title>ExamQuest — Gamification</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .gami-grid {

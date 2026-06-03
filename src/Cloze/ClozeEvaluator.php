@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RapportQuest\Cloze;
+namespace ExamQuest\Cloze;
 
 /**
  * Evaluates a user's answer to a cloze question.
