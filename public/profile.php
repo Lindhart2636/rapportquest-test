@@ -190,17 +190,18 @@ $reportId = 0;
         /* Clickable profile avatar */
         .profile-avatar-btn {
             position: relative; cursor: pointer;
-            display: flex; justify-content: center;
-            width: 100%;
+            display: inline-block;
         }
         .profile-avatar-btn::after {
             content: '✏️';
-            position: absolute; bottom: 2px; right: 2px;
+            position: absolute;
+            bottom: 6px; right: 6px;
             background: var(--surface); border-radius: 50%;
-            width: 22px; height: 22px;
+            width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center;
-            font-size: .75rem; line-height: 22px; text-align: center;
+            font-size: .85rem; line-height: 28px; text-align: center;
             border: 2px solid var(--primary);
+            box-shadow: 0 0 8px rgba(124,58,237,.5);
         }
 
         /* Avatar picker modal */
