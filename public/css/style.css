@@ -588,7 +588,7 @@ body {
 
 .level-row { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-radius: 8px; background: var(--surface-2); border: 1px solid transparent; transition: all .15s; }
 .level-row.current  { background: rgba(124,58,237,.15); border-color: var(--border-bright); box-shadow: var(--glow-sm); }
-.level-row.locked   { opacity: .5; }
+.level-row.locked   { opacity: .3; }
 .level-row-icon     { font-size: 1.4rem; width: 2rem; text-align: center; }
 .level-row-info     { flex: 1; }
 .level-row-name     { font-weight: 700; font-size: .9rem; color: #fff; }
@@ -598,10 +598,10 @@ body {
 .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; }
 .badge-item { text-align: center; padding: 1rem .75rem; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); transition: all .15s; }
 .badge-item.earned { background: rgba(124,58,237,.15); border-color: var(--border-bright); box-shadow: var(--glow-sm); }
-.badge-item.locked { opacity: .55; filter: grayscale(1); }
+.badge-item.locked { opacity: .28; filter: grayscale(1); }
 .badge-icon  { font-size: 2rem; display: block; margin-bottom: .4rem; }
 .badge-label { font-size: .8rem; font-weight: 700; color: #fff; }
-.badge-desc  { font-size: .7rem; color: #94a3b8; margin-top: .2rem; line-height: 1.4; }
+.badge-desc  { font-size: .7rem; color: var(--text-muted); margin-top: .2rem; }
 
 .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--primary); text-decoration: none; font-weight: 600; transition: all .15s; }
 .back-link:hover { text-shadow: var(--glow-sm); }
