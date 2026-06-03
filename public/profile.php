@@ -108,7 +108,7 @@ $reportId = 0;
     <style>
         .profile-layout {
             display: grid;
-            grid-template-columns: 260px 1fr 260px;
+            grid-template-columns: 260px 1fr 280px;
             gap: 1.25rem;
             margin-bottom: 1.25rem;
         }
@@ -179,10 +179,54 @@ $reportId = 0;
         .stat-val { font-weight: 700; color: var(--accent); }
 
         /* XP bar */
-        .xp-bar-wrap { width: 100%; margin-top: .5rem; }
+        .xp-bar-wrap { width: 100%; }
         .xp-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-bottom: .35rem; }
         .xp-bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
         .xp-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 4px; transition: width .6s; }
+
+        /* Clickable profile avatar */
+        .profile-avatar-btn {
+            position: relative; cursor: pointer;
+            display: inline-block;
+        }
+        .profile-avatar-btn::after {
+            content: '✏️';
+            position: absolute; bottom: 2px; right: 2px;
+            background: var(--surface); border-radius: 50%;
+            width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem; line-height: 22px; text-align: center;
+            border: 2px solid var(--primary);
+        }
+
+        /* Avatar picker modal */
+        .avatar-modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.7);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .avatar-modal-overlay.open { display: flex; }
+        .avatar-modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 0 40px rgba(124,58,237,.5);
+            border: 1px solid var(--primary);
+            max-width: 480px; width: 90%;
+        }
+        .avatar-modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem;
+        }
+        .avatar-modal-header h3 { margin: 0; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+        .avatar-modal-close {
+            background: none; border: none; color: var(--text-muted);
+            font-size: 1.4rem; cursor: pointer; line-height: 1;
+            transition: color .2s;
+        }
+        .avatar-modal-close:hover { color: #fff; }
 
         /* Avatar grid */
         .avatar-grid {
@@ -303,14 +347,16 @@ $reportId = 0;
         <div class="p-card">
             <h3>🧑 Profil</h3>
             <div class="profile-avatar-wrap">
-                <?php if ($currentAvatar && isset($avatars[$currentAvatar])): ?>
-                <img id="profileAvatarImg"
-                     src="<?= $AVATAR_BASE . $avatars[$currentAvatar]['file'] ?>"
-                     alt="<?= htmlspecialchars($avatars[$currentAvatar]['label']) ?>"
-                     class="profile-avatar">
-                <?php else: ?>
-                <div id="profileAvatarImg" class="avatar-placeholder">🧑‍💻</div>
-                <?php endif; ?>
+                <div class="profile-avatar-btn" id="openAvatarModal" title="Skift avatar">
+                    <?php if ($currentAvatar && isset($avatars[$currentAvatar])): ?>
+                    <img id="profileAvatarImg"
+                         src="<?= $AVATAR_BASE . $avatars[$currentAvatar]['file'] ?>"
+                         alt="<?= htmlspecialchars($avatars[$currentAvatar]['label']) ?>"
+                         class="profile-avatar">
+                    <?php else: ?>
+                    <div id="profileAvatarImg" class="avatar-placeholder">🧑‍💻</div>
+                    <?php endif; ?>
+                </div>
 
                 <div class="level-pill">
                     ⚔️ Level <?= $progress['level'] ?>
@@ -348,27 +394,11 @@ $reportId = 0;
             </div>
         </div>
 
-        <!-- 2. Avatar picker (center — spans if needed) -->
-        <div class="p-card" style="grid-column: span 1;">
-            <h3>🎭 Vælg din avatarens</h3>
-            <div class="avatar-grid">
-                <?php foreach ($avatars as $key => $meta): ?>
-                <div class="av-opt <?= $key === $currentAvatar ? 'selected' : '' ?>"
-                     data-key="<?= $key ?>"
-                     title="<?= htmlspecialchars($meta['label']) ?>">
-                    <img src="<?= $AVATAR_BASE . $meta['file'] ?>"
-                         alt="<?= htmlspecialchars($meta['label']) ?>"
-                         loading="lazy">
-                    <span><?= htmlspecialchars($meta['label']) ?></span>
-                </div>
-                <?php endforeach; ?>
-            </div>
-
-            <?php if ($currentAvatar): ?>
-            <p style="margin-top:.75rem; font-size:.8rem; color:var(--text-muted); text-align:center;">
-                Valgt: <strong style="color:var(--accent);"><?= htmlspecialchars($avatars[$currentAvatar]['label'] ?? '') ?></strong>
-            </p>
-            <?php endif; ?>
+        <!-- 2. Stats placeholder (avatar picker is now a modal) -->
+        <div class="p-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;text-align:center;">
+            <div style="font-size:3rem;">🎭</div>
+            <p style="color:var(--text-muted);font-size:.9rem;">Klik på dit profilbillede for at vælge avatar</p>
+            <button class="btn-unlock" id="openAvatarModal2" style="width:auto;padding:.5rem 1.5rem;">Skift Avatar</button>
         </div>
 
         <!-- 3. Right column: Stats + Nav links -->
@@ -484,11 +514,51 @@ $reportId = 0;
 
 </main>
 
+<!-- Avatar modal -->
+<div class="avatar-modal-overlay" id="avatarModalOverlay">
+    <div class="avatar-modal">
+        <div class="avatar-modal-header">
+            <h3>🎭 Vælg din avatar</h3>
+            <button class="avatar-modal-close" id="closeAvatarModal">✕</button>
+        </div>
+        <div class="avatar-grid">
+            <?php foreach ($avatars as $key => $meta): ?>
+            <div class="av-opt <?= $key === $currentAvatar ? 'selected' : '' ?>"
+                 data-key="<?= $key ?>"
+                 title="<?= htmlspecialchars($meta['label']) ?>">
+                <img src="<?= $AVATAR_BASE . $meta['file'] ?>"
+                     alt="<?= htmlspecialchars($meta['label']) ?>"
+                     loading="lazy">
+                <span><?= htmlspecialchars($meta['label']) ?></span>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if ($currentAvatar): ?>
+        <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-muted);text-align:center;" id="selectedLabel">
+            Valgt: <strong style="color:var(--accent);"><?= htmlspecialchars($avatars[$currentAvatar]['label'] ?? '') ?></strong>
+        </p>
+        <?php else: ?>
+        <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-muted);text-align:center;" id="selectedLabel"></p>
+        <?php endif; ?>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const AVATAR_BASE = '<?= $AVATAR_BASE ?>';
 const AVATARS = <?= json_encode($avatars) ?>;
+
+// Modal open/close
+function openModal() { document.getElementById('avatarModalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('avatarModalOverlay').classList.remove('open'); }
+
+document.getElementById('openAvatarModal').addEventListener('click', openModal);
+document.getElementById('openAvatarModal2').addEventListener('click', openModal);
+document.getElementById('closeAvatarModal').addEventListener('click', closeModal);
+document.getElementById('avatarModalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+});
 
 // Avatar selection
 document.querySelectorAll('.av-opt').forEach(el => {
@@ -496,6 +566,9 @@ document.querySelectorAll('.av-opt').forEach(el => {
         const key = el.dataset.key;
         document.querySelectorAll('.av-opt').forEach(x => x.classList.remove('selected'));
         el.classList.add('selected');
+
+        const lbl = document.getElementById('selectedLabel');
+        if (lbl) lbl.innerHTML = 'Valgt: <strong style="color:var(--accent);">' + (AVATARS[key]?.label ?? '') + '</strong>';
 
         // Update profile avatar
         const imgEl = document.getElementById('profileAvatarImg');
