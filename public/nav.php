@@ -18,7 +18,7 @@ if ($_navAvatar) {
 ?>
 <nav class="top-nav" aria-label="Hovednavigation">
     <a href="index.php" class="nav-brand">
-        <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/ExamQuest%20logo%20med%20futuristisk%20design.png" alt="ExamQuest" style="height:28px;width:auto;vertical-align:middle;">
+        <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/ExamQuest%20logo%20med%20futuristisk%20design.png" alt="ExamQuest" style="height:56px;width:auto;vertical-align:middle;">
     </a>
     <div class="nav-links">
         <?php if ($navReportId > 0): ?>

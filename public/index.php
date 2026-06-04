@@ -91,7 +91,7 @@ $noReport = !$latestReportId;
             display: flex; align-items: center; gap: .5rem;
             text-decoration: none; flex-shrink: 0;
         }
-        .top-bar-logo img { height: 32px; width: auto; }
+        .top-bar-logo img { height: 64px; width: auto; }
         .top-bar-logo span {
             font-weight: 900; font-size: 1.1rem;
             background: linear-gradient(135deg, #a78bfa, #06b6d4);
