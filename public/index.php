@@ -212,6 +212,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             padding: 2rem 1.75rem;
             text-decoration: none;
             display: block;
+            text-align: center;
             transition: border-color .2s, box-shadow .2s, transform .2s;
         }
         .feature-card:hover {
