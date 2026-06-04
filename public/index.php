@@ -152,17 +152,18 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
             position: relative;
             overflow: hidden;
             flex: 1;
-            min-height: 320px;
+            min-height: 0;
+            height: 100%;
         }
         .hero-bg {
             position: absolute; inset: 0;
             background-image: url('<?= $AVATAR_BASE ?>Hyggelig%20studieaften.png');
             background-size: cover; background-position: center top;
-            filter: brightness(.45);
+            filter: brightness(.65);
         }
         .hero-overlay {
             position: absolute; inset: 0;
-            background: linear-gradient(to right, rgba(10,10,26,.85) 45%, rgba(10,10,26,.2));
+            background: linear-gradient(to right, rgba(10,10,26,.7) 40%, rgba(10,10,26,.05));
         }
         .hero-content {
             position: relative; z-index: 1;
@@ -199,20 +200,6 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
             transition: background .2s;
         }
         .btn-secondary:hover { background: rgba(255,255,255,.18); }
-
-        .neon-sign {
-            position: absolute; bottom: 1.5rem; right: 1.5rem;
-            background: rgba(0,0,0,.65);
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            padding: .75rem 1.25rem;
-            font-weight: 900; font-size: .9rem;
-            color: #fff;
-            text-shadow: 0 0 10px var(--primary);
-            box-shadow: 0 0 20px rgba(124,58,237,.4), inset 0 0 20px rgba(124,58,237,.1);
-            line-height: 1.6; text-align: center; z-index: 1;
-        }
-        .neon-sign span { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
 
         .postit {
             background: #f5d042; color: #1a1a1a;
@@ -358,11 +345,6 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
                 <div class="postit">Du er tættere på eksamen end du tror. 😊</div>
             </div>
 
-            <div class="neon-sign">
-                FOCUS<br>
-                <span>&gt; MOTIVATION</span><br>
-                <span>&gt; RESULTS</span>
-            </div>
         </section>
 
         <!-- HOW IT WORKS -->
