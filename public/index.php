@@ -24,6 +24,9 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
     $navAvatarUrl = $AVATAR_BASE . 'Avatar%20' . $m[1] . '.png';
 }
 
+// Latest report ID for sidebar links
+$latestReportId = 0;
+
 try {
     $pdo = getDbConnection();
     $sessionId  = session_id();
@@ -42,13 +45,16 @@ try {
     $xpPct  = $range > 0 ? min(100, (int)round($xpInto / $range * 100)) : 100;
     $xpToday = $_SESSION['xp_today'] ?? 0;
 
+    $r = $pdo->query('SELECT id FROM reports ORDER BY id DESC LIMIT 1')->fetch();
+    $latestReportId = $r ? (int)$r['id'] : 0;
+
     $readiness = 0;
 } catch (Exception $e) {
     // silently continue with defaults
 }
 
 $currentPage = 'index.php';
-$LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
+$LOGO_URL = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
 ?>
 <!DOCTYPE html>
 <html lang="da">
@@ -115,6 +121,9 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
         .sidebar-link:hover { color: var(--text); background: rgba(124,58,237,.1); }
         .sidebar-link.active { color: #fff; background: rgba(124,58,237,.18); border-left-color: var(--primary); }
         .sidebar-link .s-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .sidebar-link .s-img { width: 22px; height: 22px; object-fit: contain; filter: brightness(.7); transition: filter .15s; }
+        .sidebar-link:hover .s-img, .sidebar-link.active .s-img { filter: brightness(1.2); }
+        .sidebar-disabled { opacity: .4; pointer-events: none; }
 
         .sidebar-user {
             padding: 1rem 1.25rem;
@@ -293,13 +302,34 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
+        <?php
+        $qUrl    = $latestReportId ? "quiz.php?id={$latestReportId}"    : '#upload';
+        $cUrl    = $latestReportId ? "cloze.php?id={$latestReportId}"   : '#upload';
+        $bUrl    = $latestReportId ? "boss.php?id={$latestReportId}"    : '#upload';
+        $noReport = !$latestReportId;
+        ?>
         <nav class="sidebar-nav">
-            <a href="index.php"        class="sidebar-link active"><span class="s-icon">🏠</span> Hjem</a>
-            <a href="gamification.php" class="sidebar-link"><span class="s-icon">🎮</span> Spil</a>
-            <a href="dashboard.php"    class="sidebar-link"><span class="s-icon">📊</span> Statistik</a>
-            <a href="gamification.php" class="sidebar-link"><span class="s-icon">🏅</span> Badges</a>
-            <a href="analyse.php"      class="sidebar-link"><span class="s-icon">📄</span> Rapporter</a>
-            <a href="profile.php"      class="sidebar-link"><span class="s-icon">⚙️</span> Indstillinger</a>
+            <a href="index.php"     class="sidebar-link active">
+                <img src="<?= $AVATAR_BASE ?>upload%20icon.png" class="s-img" alt=""> Hjem
+            </a>
+            <a href="<?= $qUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>Bogikon.png" class="s-img" alt=""> Quiz
+            </a>
+            <a href="<?= $cUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>Holografisk%20dokument.png" class="s-img" alt=""> Cloze
+            </a>
+            <a href="<?= $bUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>Korsede%20sv%C3%A6rd.png" class="s-img" alt=""> Boss Battle
+            </a>
+            <a href="dashboard.php" class="sidebar-link">
+                <img src="<?= $AVATAR_BASE ?>Trof%C3%A6.png" class="s-img" alt=""> Statistik
+            </a>
+            <a href="gamification.php" class="sidebar-link">
+                <img src="<?= $AVATAR_BASE ?>Stjernebadge.png" class="s-img" alt=""> Badges
+            </a>
+            <a href="profile.php" class="sidebar-link">
+                <img src="<?= $AVATAR_BASE ?>Neon%20h%C3%A5ndtryk.png" class="s-img" alt=""> Profil
+            </a>
         </nav>
 
         <div class="sidebar-user">
@@ -348,21 +378,21 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
 
         <!-- HOW IT WORKS -->
         <section id="how" style="padding:1rem 2rem 1.5rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
-            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
-                <div style="font-size:1.75rem;margin-bottom:.4rem;">🎯</div>
-                <div style="font-weight:700;margin-bottom:.25rem;">Quiz</div>
+            <a href="<?= $qUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(124,58,237,.4)'" onmouseout="this.style.boxShadow='none'">
+                <img src="<?= $AVATAR_BASE ?>Bogikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Quiz</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Multiple-choice baseret på rapportens kernebegreber</div>
-            </div>
-            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
-                <div style="font-size:1.75rem;margin-bottom:.4rem;">✏️</div>
-                <div style="font-weight:700;margin-bottom:.25rem;">Cloze</div>
+            </a>
+            <a href="<?= $cUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(6,182,212,.4)'" onmouseout="this.style.boxShadow='none'">
+                <img src="<?= $AVATAR_BASE ?>Holografisk%20dokument.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Cloze</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Udfyldningsopgaver der træner fagtermer</div>
-            </div>
-            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
-                <div style="font-size:1.75rem;margin-bottom:.4rem;">⚔️</div>
-                <div style="font-weight:700;margin-bottom:.25rem;">Boss Battle</div>
+            </a>
+            <a href="<?= $bUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(249,115,22,.4)'" onmouseout="this.style.boxShadow='none'">
+                <img src="<?= $AVATAR_BASE ?>Korsede%20sv%C3%A6rd.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Boss Battle</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Åbne spørgsmål der tester dybdegående forståelse</div>
-            </div>
+            </a>
         </section>
 
         <!-- STATS BAR -->
