@@ -111,3 +111,135 @@ body { padding-top: 76px; }
     </div>
 </nav>
 <?php require_once __DIR__ . '/auth_modal.php'; ?>
+
+<!-- ══════ SNAKE EASTER EGG (Konami code: ↑↑↓↓←→←→BA) ══════ -->
+<div id="snakeOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
+    <div style="text-align:center;margin-bottom:1rem;">
+        <span style="font-size:1.5rem;font-weight:900;color:#7c3aed;letter-spacing:.05em;">🐍 SNAKE</span>
+        <span style="display:block;font-size:.8rem;color:#6b7280;margin-top:.25rem;">Piletaster = bevæg · P = pause · ESC = luk</span>
+    </div>
+    <canvas id="snakeCanvas" width="400" height="400" style="border:2px solid #7c3aed;border-radius:8px;box-shadow:0 0 30px rgba(124,58,237,.5);background:#0a0a1a;display:block;"></canvas>
+    <div style="margin-top:1rem;display:flex;gap:1rem;align-items:center;">
+        <span id="snakeScore" style="font-size:1.1rem;font-weight:700;color:#fff;">Score: 0</span>
+        <button onclick="snakeRestart()" style="padding:.4rem 1rem;background:#7c3aed;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-family:inherit;">Restart</button>
+        <button onclick="snakeClose()" style="padding:.4rem 1rem;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;font-family:inherit;">Luk</button>
+    </div>
+    <div id="snakeMsg" style="margin-top:.75rem;font-size:1rem;font-weight:700;color:#f97316;min-height:1.5rem;"></div>
+</div>
+
+<script>
+(function(){
+    // Konami code detector
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let kIdx = 0;
+    document.addEventListener('keydown', e => {
+        if (e.key === KONAMI[kIdx]) { kIdx++; if (kIdx === KONAMI.length) { kIdx = 0; snakeOpen(); } }
+        else kIdx = e.key === KONAMI[0] ? 1 : 0;
+    });
+
+    const GRID = 20, COLS = 20, ROWS = 20;
+    let snake, dir, nextDir, food, score, paused, dead, loop;
+    const overlay  = document.getElementById('snakeOverlay');
+    const canvas   = document.getElementById('snakeCanvas');
+    const ctx      = canvas.getContext('2d');
+    const scoreEl  = document.getElementById('snakeScore');
+    const msgEl    = document.getElementById('snakeMsg');
+
+    function rand(n) { return Math.floor(Math.random() * n); }
+
+    function placeFood() {
+        let pos;
+        do { pos = {x: rand(COLS), y: rand(ROWS)}; }
+        while (snake.some(s => s.x === pos.x && s.y === pos.y));
+        food = pos;
+    }
+
+    function init() {
+        snake   = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+        dir     = {x:1,y:0};
+        nextDir = {x:1,y:0};
+        score   = 0; paused = false; dead = false;
+        msgEl.textContent = '';
+        scoreEl.textContent = 'Score: 0';
+        placeFood();
+        clearInterval(loop);
+        loop = setInterval(tick, 120);
+    }
+
+    function tick() {
+        if (paused || dead) return;
+        dir = nextDir;
+        const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+        if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS || snake.some(s => s.x === head.x && s.y === head.y)) {
+            dead = true; msgEl.textContent = '💀 Game over! Tryk Restart.'; draw(); return;
+        }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            score += 10; scoreEl.textContent = 'Score: ' + score; placeFood();
+        } else { snake.pop(); }
+        draw();
+    }
+
+    function draw() {
+        ctx.fillStyle = '#0a0a1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // grid dots
+        ctx.fillStyle = 'rgba(124,58,237,.08)';
+        for (let x = 0; x < COLS; x++) for (let y = 0; y < ROWS; y++) {
+            ctx.fillRect(x*GRID+9, y*GRID+9, 2, 2);
+        }
+
+        // food
+        ctx.fillStyle = '#f97316';
+        ctx.shadowColor = '#f97316'; ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(food.x*GRID+GRID/2, food.y*GRID+GRID/2, GRID/2-2, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // snake
+        snake.forEach((s, i) => {
+            const t = i / snake.length;
+            ctx.fillStyle = i === 0 ? '#a78bfa' : `hsl(${260 - t*40}, 70%, ${55 - t*15}%)`;
+            ctx.shadowColor = i === 0 ? '#7c3aed' : 'transparent';
+            ctx.shadowBlur  = i === 0 ? 10 : 0;
+            ctx.beginPath();
+            ctx.roundRect(s.x*GRID+1, s.y*GRID+1, GRID-2, GRID-2, i===0 ? 6 : 3);
+            ctx.fill();
+        });
+        ctx.shadowBlur = 0;
+
+        if (paused && !dead) {
+            ctx.fillStyle = 'rgba(0,0,0,.55)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('PAUSE', canvas.width/2, canvas.height/2);
+            ctx.textAlign = 'left';
+        }
+    }
+
+    document.addEventListener('keydown', e => {
+        if (!overlay.style.display || overlay.style.display === 'none') return;
+        const map = {ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};
+        if (map[e.key]) {
+            const d = map[e.key];
+            if (d.x !== -dir.x || d.y !== -dir.y) nextDir = d;
+            e.preventDefault();
+        }
+        if (e.key === 'p' || e.key === 'P') { paused = !paused; draw(); }
+        if (e.key === 'Escape') snakeClose();
+    });
+
+    window.snakeOpen = function() {
+        overlay.style.display = 'flex';
+        init();
+    };
+    window.snakeClose = function() {
+        overlay.style.display = 'none';
+        clearInterval(loop);
+    };
+    window.snakeRestart = function() { init(); };
+})();
+</script>
+
