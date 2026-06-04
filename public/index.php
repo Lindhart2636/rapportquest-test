@@ -10,439 +10,537 @@ use ExamQuest\Gamification\LevelDefinitions;
 
 session_start();
 
-$xp = 0; $level = 1; $streak = 0; $readiness = 0;
-$levelTitle = 'Nybegynder';
+$xp = 0; $level = 1; $streak = 0;
 $nextXpThreshold = 100;
 $prevXpThreshold = 0;
 $xpPct = 0;
-$xpToday = 0;
 $currentAvatar = $_SESSION['avatar'] ?? '';
 
 $AVATAR_BASE = 'https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/';
-$navAvatarUrl = '';
-if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
-    $navAvatarUrl = $AVATAR_BASE . 'Avatar%20' . $m[1] . '.png';
-}
+$LOGO_URL    = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
 
-// Latest report ID for sidebar links
 $latestReportId = 0;
 
 try {
     $pdo = getDbConnection();
-    $sessionId  = session_id();
-    $xpManager  = new XpManager($pdo);
-    $streakManager = new StreakManager($pdo);
-    $progress   = $xpManager->getProgress($sessionId);
-    $xp         = $progress['xp'];
-    $level      = $progress['level'];
-    $streak     = $progress['streak'];
-    $lvlDef     = LevelDefinitions::get($level);
-    $levelTitle = $lvlDef['title'] ?? 'Nybegynder';
+    $sessionId     = session_id();
+    $xpManager     = new XpManager($pdo);
+    $progress      = $xpManager->getProgress($sessionId);
+    $xp            = $progress['xp'];
+    $level         = $progress['level'];
+    $streak        = $progress['streak'];
+    $lvlDef        = LevelDefinitions::get($level);
     $nextXpThreshold = $xpManager->nextLevelThreshold($level);
     $prevXpThreshold = $xpManager->nextLevelThreshold($level - 1);
     $range  = $nextXpThreshold - $prevXpThreshold;
     $xpInto = $xp - $prevXpThreshold;
     $xpPct  = $range > 0 ? min(100, (int)round($xpInto / $range * 100)) : 100;
-    $xpToday = $_SESSION['xp_today'] ?? 0;
 
     $r = $pdo->query('SELECT id FROM reports ORDER BY id DESC LIMIT 1')->fetch();
     $latestReportId = $r ? (int)$r['id'] : 0;
+} catch (Exception $e) {}
 
-    $readiness = 0;
-} catch (Exception $e) {
-    // silently continue with defaults
-}
-
-$currentPage = 'index.php';
-$LOGO_URL = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
 $qUrl     = $latestReportId ? "quiz.php?id={$latestReportId}"  : '#upload';
 $cUrl     = $latestReportId ? "cloze.php?id={$latestReportId}" : '#upload';
 $bUrl     = $latestReportId ? "boss.php?id={$latestReportId}"  : '#upload';
 $noReport = !$latestReportId;
+
+$navAvatarUrl = '';
+if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
+    $navAvatarUrl = $AVATAR_BASE . 'Avatar%20' . $m[1] . '.png';
+}
 ?>
 <!DOCTYPE html>
 <html lang="da">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExamQuest — Drop din rapport</title>
+    <title>ExamQuest — Gør din rapport eksamen-klar</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* ── Layout ── */
-        body { display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        /* ─── Reset & base ─── */
+        html { scroll-behavior: smooth; }
+        body { overflow-x: hidden; }
 
-        .app-shell {
-            display: grid;
-            grid-template-columns: 220px 1fr;
-            grid-template-rows: 56px 1fr auto;
-            min-height: 100vh;
+        /* ─── Landing nav ─── */
+        .lp-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem;
+            height: 76px;
+            background: rgba(10,10,26,.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(124,58,237,.18);
+            transition: background .3s;
         }
-
-        /* ── Top bar ── */
-        .top-bar {
-            grid-column: 1 / -1;
-            display: flex; align-items: center; gap: 1rem;
-            padding: 0 1.25rem;
-            background: var(--surface);
-            border-bottom: 1px solid rgba(255,255,255,.07);
-            position: sticky; top: 0; z-index: 100;
+        .lp-nav-logo img {
+            height: 56px; width: auto;
+            padding: 10px 0; margin: 10px 0;
         }
-        .top-bar-logo {
-            display: flex; align-items: center; gap: .5rem;
-            text-decoration: none; flex-shrink: 0;
+        .lp-nav-links { display: flex; align-items: center; gap: .5rem; }
+        .lp-nav-link {
+            padding: .4rem .85rem; border-radius: 8px;
+            color: var(--text-muted); font-size: .875rem; font-weight: 500;
+            text-decoration: none; border: 1px solid transparent;
+            transition: all .15s;
         }
-        .top-bar-logo img { height: 64px; width: auto; padding: 10px 0; margin: 10px 0; }
-        .top-bar-logo span {
-            font-weight: 900; font-size: 1.1rem;
-            background: linear-gradient(135deg, #a78bfa, #06b6d4);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: .03em;
+        .lp-nav-link:hover { color: #fff; background: rgba(124,58,237,.15); border-color: var(--border); }
+        .lp-nav-cta {
+            padding: .45rem 1.2rem; border-radius: 8px;
+            background: var(--primary); color: #fff;
+            font-size: .875rem; font-weight: 700;
+            text-decoration: none; border: none; cursor: pointer;
+            box-shadow: 0 0 16px rgba(124,58,237,.4);
+            transition: box-shadow .2s, transform .15s;
         }
-        .top-bar-divider { flex: 1; }
-        .top-bar-stat {
-            display: flex; align-items: center; gap: .4rem;
-            background: rgba(255,255,255,.06); border-radius: 2rem;
-            padding: .3rem .9rem; font-size: .85rem; font-weight: 600;
-        }
-        .top-bar-stat .icon { font-size: 1rem; }
-
-        /* ── Sidebar ── */
-        .sidebar {
-            background: var(--surface);
-            border-right: 1px solid rgba(255,255,255,.07);
-            display: flex; flex-direction: column;
-            padding: 1.25rem 0;
-        }
-        .sidebar-nav { flex: 1; }
-        .sidebar-link {
-            display: flex; align-items: center; gap: .75rem;
-            padding: .65rem 1.25rem;
-            color: var(--text-muted); text-decoration: none;
-            font-size: .9rem; font-weight: 500;
-            border-left: 3px solid transparent;
-            transition: color .15s, background .15s, border-color .15s;
-        }
-        .sidebar-link:hover { color: var(--text); background: rgba(124,58,237,.1); }
-        .sidebar-link.active { color: #fff; background: rgba(124,58,237,.18); border-left-color: var(--primary); }
-        .sidebar-link .s-icon { font-size: 1.1rem; width: 22px; text-align: center; }
-        .sidebar-link .s-img { width: 22px; height: 22px; object-fit: contain; filter: brightness(.7); transition: filter .15s; }
-        .sidebar-link:hover .s-img, .sidebar-link.active .s-img { filter: brightness(1.2); }
-        .sidebar-disabled { opacity: .4; pointer-events: none; }
-
-        .sidebar-user {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid rgba(255,255,255,.07);
-        }
-        .sidebar-user-row {
-            display: flex; align-items: center; gap: .65rem;
-            margin-bottom: .6rem;
-        }
-        .sidebar-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
+        .lp-nav-cta:hover { box-shadow: 0 0 28px rgba(124,58,237,.7); transform: translateY(-1px); }
+        .lp-nav-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
             object-fit: cover; border: 2px solid var(--primary);
-            flex-shrink: 0;
-        }
-        .sidebar-avatar-placeholder {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: var(--bg); border: 2px solid var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; flex-shrink: 0;
-        }
-        .sidebar-username { font-weight: 700; font-size: .85rem; }
-        .sidebar-level { font-size: .75rem; color: var(--text-muted); }
-        .sidebar-xp-bar { height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
-        .sidebar-xp-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 3px; }
-        .sidebar-xp-label { display: flex; justify-content: space-between; font-size: .7rem; color: var(--text-muted); margin-top: .3rem; }
-
-        /* ── Main content ── */
-        .main-content {
-            display: flex; flex-direction: column;
-            overflow: hidden;
         }
 
-        /* ── Hero ── */
+        /* ─── Hero ─── */
         .hero {
             position: relative;
+            min-height: 100vh;
+            display: flex; align-items: center;
             overflow: hidden;
-            flex: 1;
-            min-height: 0;
-            height: 100%;
+            padding-top: 76px;
         }
         .hero-bg {
             position: absolute; inset: 0;
             background-image: url('<?= $AVATAR_BASE ?>Hyggelig%20studieaften.png');
-            background-size: cover; background-position: center top;
-            filter: brightness(.65);
+            background-size: cover; background-position: center 30%;
+            filter: brightness(.55);
         }
-        .hero-overlay {
+        .hero-gradient {
             position: absolute; inset: 0;
-            background: linear-gradient(to right, rgba(10,10,26,.7) 40%, rgba(10,10,26,.05));
+            background: linear-gradient(
+                105deg,
+                rgba(10,10,26,.92) 0%,
+                rgba(10,10,26,.7)  45%,
+                rgba(10,10,26,.15) 100%
+            );
         }
         .hero-content {
             position: relative; z-index: 1;
-            padding: 2.5rem 2rem 2rem;
-            max-width: 480px;
+            max-width: 600px;
+            padding: 4rem 2rem 4rem 5vw;
         }
-        .hero-content h1 {
-            font-size: 2rem; font-weight: 900; line-height: 1.15;
-            margin-bottom: .4rem; color: #fff;
-        }
-        .hero-content h1 span {
-            background: linear-gradient(135deg, var(--primary), var(--neon-blue));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-content p { color: rgba(255,255,255,.75); font-size: .95rem; margin-bottom: 1.5rem; }
-
-        .hero-actions { display: flex; flex-direction: column; gap: .75rem; align-items: flex-start; }
-        .btn-hero {
+        .hero-eyebrow {
             display: inline-flex; align-items: center; gap: .5rem;
+            background: rgba(124,58,237,.2); border: 1px solid rgba(124,58,237,.45);
+            border-radius: 999px; padding: .3rem .9rem;
+            font-size: .8rem; font-weight: 700; color: #a78bfa;
+            letter-spacing: .06em; text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .hero-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 900; line-height: 1.1;
+            color: #fff; margin-bottom: 1.25rem;
+        }
+        .hero-title .grad {
+            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #06b6d4 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.1rem; color: rgba(255,255,255,.72);
+            line-height: 1.65; margin-bottom: 2.25rem; max-width: 480px;
+        }
+        .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .btn-cta {
+            display: inline-flex; align-items: center; gap: .55rem;
+            padding: .85rem 2rem; border-radius: 10px;
             background: var(--primary); color: #fff;
-            padding: .75rem 1.75rem; border-radius: var(--radius);
-            font-weight: 700; font-size: 1rem; text-decoration: none;
+            font-size: 1rem; font-weight: 800; text-decoration: none;
             border: none; cursor: pointer;
-            box-shadow: 0 0 20px rgba(124,58,237,.4);
+            box-shadow: 0 0 28px rgba(124,58,237,.5);
             transition: box-shadow .2s, transform .15s;
         }
-        .btn-hero:hover { box-shadow: 0 0 30px rgba(124,58,237,.7); transform: translateY(-2px); }
-        .btn-secondary {
-            display: inline-flex; align-items: center; gap: .5rem;
-            background: rgba(255,255,255,.1); color: #fff;
-            padding: .65rem 1.25rem; border-radius: var(--radius);
-            font-weight: 600; font-size: .9rem; text-decoration: none;
-            border: 1px solid rgba(255,255,255,.2); cursor: pointer;
+        .btn-cta:hover { box-shadow: 0 0 44px rgba(124,58,237,.8); transform: translateY(-2px); }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: .55rem;
+            padding: .8rem 1.6rem; border-radius: 10px;
+            background: rgba(255,255,255,.08); color: #fff;
+            font-size: .95rem; font-weight: 600; text-decoration: none;
+            border: 1px solid rgba(255,255,255,.2);
             transition: background .2s;
         }
-        .btn-secondary:hover { background: rgba(255,255,255,.18); }
+        .btn-ghost:hover { background: rgba(255,255,255,.16); }
+        .hero-stats {
+            display: flex; gap: 2.5rem; margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        .hero-stat-num {
+            font-size: 1.9rem; font-weight: 900; color: #fff; line-height: 1;
+        }
+        .hero-stat-num .accent { color: var(--accent); }
+        .hero-stat-label { font-size: .78rem; color: rgba(255,255,255,.5); margin-top: .2rem; }
 
-        .postit {
-            background: #f5d042; color: #1a1a1a;
-            padding: .65rem .9rem; border-radius: 4px;
-            font-size: .82rem; font-weight: 600; max-width: 210px;
-            box-shadow: 3px 3px 0 rgba(0,0,0,.25);
-            transform: rotate(-1.5deg); margin-top: .75rem;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+        /* ─── Section shared ─── */
+        section { padding: 5rem 2rem; }
+        .section-inner { max-width: 1100px; margin: 0 auto; }
+        .section-eyebrow {
+            font-size: .75rem; font-weight: 800; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--primary);
+            margin-bottom: .75rem;
+        }
+        .section-title {
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-weight: 900; color: #fff; line-height: 1.2;
+            margin-bottom: .75rem;
+        }
+        .section-sub {
+            color: var(--text-muted); font-size: 1rem;
+            max-width: 560px; line-height: 1.65;
         }
 
-        /* Upload modal */
+        /* ─── Features ─── */
+        .features-section { background: var(--surface); }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        .feature-card {
+            background: var(--bg-mid);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.75rem;
+            text-decoration: none;
+            display: block;
+            transition: border-color .2s, box-shadow .2s, transform .2s;
+        }
+        .feature-card:hover {
+            border-color: var(--border-bright);
+            box-shadow: 0 0 28px rgba(124,58,237,.3);
+            transform: translateY(-4px);
+        }
+        .feature-card-img {
+            width: 72px; height: 72px; object-fit: contain;
+            margin-bottom: 1.25rem;
+            filter: drop-shadow(0 0 12px rgba(124,58,237,.5));
+        }
+        .feature-card-tag {
+            display: inline-block; padding: .2rem .6rem; border-radius: 5px;
+            font-size: .7rem; font-weight: 800; letter-spacing: .07em;
+            text-transform: uppercase; margin-bottom: .65rem;
+        }
+        .tag-quiz  { background: rgba(124,58,237,.2); color: #a78bfa; border: 1px solid rgba(124,58,237,.4); }
+        .tag-cloze { background: rgba(6,182,212,.15);  color: #67e8f9; border: 1px solid rgba(6,182,212,.35); }
+        .tag-boss  { background: rgba(249,115,22,.15); color: #fdba74; border: 1px solid rgba(249,115,22,.35); }
+        .feature-card h3 { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+        .feature-card p  { font-size: .9rem; color: var(--text-muted); line-height: 1.6; }
+        .feature-card-arrow {
+            display: inline-flex; align-items: center; gap: .4rem;
+            margin-top: 1rem; font-size: .85rem; font-weight: 700;
+            color: var(--primary); text-decoration: none;
+        }
+
+        /* ─── How it works ─── */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem; margin-top: 3rem; position: relative;
+        }
+        .steps-grid::before {
+            content: '';
+            position: absolute; top: 28px; left: calc(12.5% + 28px); right: calc(12.5% + 28px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--neon-blue));
+            opacity: .3;
+        }
+        .step {
+            text-align: center;
+            padding: 1.5rem 1rem;
+        }
+        .step-num {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--surface); border: 2px solid var(--border-bright);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 900; color: var(--primary);
+            box-shadow: 0 0 16px rgba(124,58,237,.3);
+            margin: 0 auto 1rem;
+        }
+        .step h4 { font-size: .95rem; font-weight: 800; color: #fff; margin-bottom: .4rem; }
+        .step p  { font-size: .82rem; color: var(--text-muted); line-height: 1.55; }
+
+        /* ─── XP bar section ─── */
+        .player-bar-section {
+            background: linear-gradient(135deg, #0d0d2b 0%, #13132b 100%);
+            border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+        }
+        .player-bar-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; gap: 3rem; flex-wrap: wrap;
+        }
+        .player-stat {
+            display: flex; align-items: center; gap: .75rem;
+        }
+        .player-stat-icon { font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--primary)); }
+        .player-stat-val  { font-size: 1.5rem; font-weight: 900; color: #fff; line-height: 1; }
+        .player-stat-lbl  { font-size: .75rem; color: var(--text-muted); margin-top: .1rem; }
+        .player-xp-wrap { flex: 1; min-width: 200px; }
+        .player-xp-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-bottom: .4rem; }
+        .player-xp-bar   { height: 8px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,.06); }
+        .player-xp-fill  { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 999px; box-shadow: 0 0 8px var(--primary-glow); }
+
+        /* ─── CTA section ─── */
+        .cta-section {
+            background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.25) 0%, transparent 70%), var(--bg);
+            text-align: center; padding: 6rem 2rem;
+        }
+        .cta-section .section-title { margin: 0 auto .75rem; }
+        .cta-section .section-sub   { margin: 0 auto 2.5rem; }
+
+        /* ─── Upload modal ─── */
         .upload-overlay {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,.75); z-index: 200;
+            background: rgba(0,0,0,.8); z-index: 500;
             align-items: center; justify-content: center;
         }
         .upload-overlay.open { display: flex; }
         .upload-modal {
             background: var(--surface); border-radius: var(--radius);
-            padding: 2rem; max-width: 480px; width: 90%;
-            box-shadow: 0 0 40px rgba(124,58,237,.5);
+            padding: 2rem; max-width: 500px; width: 90%;
+            box-shadow: 0 0 50px rgba(124,58,237,.5);
             border: 1px solid var(--primary);
         }
-        .upload-modal h2 { margin-bottom: .5rem; }
-        .upload-modal p { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.25rem; }
+        .upload-modal h2 { margin-bottom: .4rem; }
+        .upload-modal p.desc { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.5rem; }
         .modal-close {
             float: right; background: none; border: none;
-            color: var(--text-muted); font-size: 1.4rem; cursor: pointer;
+            color: var(--text-muted); font-size: 1.5rem; cursor: pointer;
+            line-height: 1;
         }
 
-        /* ── Bottom stats bar ── */
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
-            background: rgba(255,255,255,.07);
-            border-top: 1px solid rgba(255,255,255,.07);
-        }
-        .stats-bar-item {
+        /* ─── Footer ─── */
+        .lp-footer {
             background: var(--surface);
-            padding: .9rem 1.25rem;
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 1rem;
         }
-        .stats-bar-label { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
-        .stats-bar-value { font-size: 1.5rem; font-weight: 900; color: #fff; line-height: 1; }
-        .stats-bar-sub { font-size: .72rem; color: var(--text-muted); margin-top: .15rem; }
-        .stats-bar-value .accent { color: var(--accent); }
-
-        /* Readiness circle */
-        .readiness-wrap { display: flex; align-items: center; gap .75rem; }
-        .readiness-circle { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
-        .readiness-circle svg { transform: rotate(-90deg); }
-        .readiness-circle .pct-text {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: .75rem; font-weight: 800; color: #fff;
-        }
-        .readiness-desc { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; }
+        .lp-footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .lp-footer-link { color: var(--text-muted); font-size: .85rem; text-decoration: none; transition: color .15s; }
+        .lp-footer-link:hover { color: var(--primary); }
+        .lp-footer-copy { font-size: .8rem; color: var(--text-muted); }
 
         @media (max-width: 900px) {
-            .app-shell { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
-            .hero { grid-template-columns: 1fr; }
-            .hero-visual { display: none; }
-            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+            .steps-grid::before { display: none; }
+            .lp-nav { padding: 0 1rem; }
+            .hero-content { padding: 3rem 1.25rem; }
+        }
+        @media (max-width: 560px) {
+            .steps-grid { grid-template-columns: 1fr; }
+            .lp-nav-links .lp-nav-link { display: none; }
         }
     </style>
 </head>
 <body>
-<div class="app-shell">
 
-    <!-- TOP BAR -->
-    <header class="top-bar">
-        <a href="index.php" class="top-bar-logo">
-            <img src="<?= $LOGO_URL ?>" alt="ExamQuest logo">
+<!-- ══════════ NAV ══════════ -->
+<nav class="lp-nav">
+    <a href="index.php" class="lp-nav-logo">
+        <img src="<?= $LOGO_URL ?>" alt="ExamQuest">
+    </a>
+    <div class="lp-nav-links">
+        <a href="#features"  class="lp-nav-link">Funktioner</a>
+        <a href="#how"       class="lp-nav-link">Sådan virker det</a>
+        <a href="dashboard.php" class="lp-nav-link">📊 Dashboard</a>
+        <a href="gamification.php" class="lp-nav-link">🏆 Badges</a>
+        <a href="profile.php" class="lp-nav-link" style="display:inline-flex;align-items:center;gap:.4rem;">
+            <?php if ($navAvatarUrl): ?>
+            <img src="<?= $navAvatarUrl ?>" class="lp-nav-avatar" alt="">
+            <?php else: ?>🧑‍💻<?php endif; ?>
+            Profil
         </a>
+        <button class="lp-nav-cta" id="navUploadBtn">📤 Upload rapport</button>
+    </div>
+</nav>
 
-        <div class="top-bar-divider"></div>
+<!-- ══════════ HERO ══════════ -->
+<section class="hero" id="top">
+    <div class="hero-bg"></div>
+    <div class="hero-gradient"></div>
 
-        <div class="top-bar-stat">
-            <span class="icon">⚡</span>
-            Level <?= $level ?>
+    <div class="hero-content">
+        <div class="hero-eyebrow">✦ Eksamensforberedelse gjort sjovt</div>
+        <h1 class="hero-title">
+            Drop din rapport.<br>
+            <span class="grad">Vi gør den<br>eksamen-klar.</span>
+        </h1>
+        <p class="hero-sub">
+            Upload din PDF-rapport og få automatisk genererede quiz, cloze-opgaver og boss battles, der træner dig i at mestre dit pensum til den mundtlige eksamen.
+        </p>
+        <div class="hero-actions">
+            <button class="btn-cta" id="heroUploadBtn">📤 Upload rapport nu</button>
+            <a href="#features" class="btn-ghost">Se funktioner ↓</a>
         </div>
-        <div class="top-bar-stat">
-            <?= number_format($xp) ?> / <?= number_format($nextXpThreshold) ?> XP
-        </div>
-        <div class="top-bar-stat">
-            <span class="icon">🔥</span>
-            <?= $streak ?>
-        </div>
-    </header>
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <nav class="sidebar-nav">
-            <a href="index.php"     class="sidebar-link active">
-                <span class="s-icon">🏠</span> Hjem
-            </a>
-            <a href="<?= $qUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
-                <span class="s-icon">🎯</span> Quiz
-            </a>
-            <a href="<?= $cUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
-                <span class="s-icon">✏️</span> Cloze
-            </a>
-            <a href="<?= $bUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
-                <span class="s-icon">⚔️</span> Boss Battle
-            </a>
-            <a href="dashboard.php" class="sidebar-link">
-                <span class="s-icon">📊</span> Statistik
-            </a>
-            <a href="gamification.php" class="sidebar-link">
-                <span class="s-icon">🏅</span> Badges
-            </a>
-            <a href="profile.php" class="sidebar-link">
-                <span class="s-icon">👤</span> Profil
-            </a>
-        </nav>
-
-        <div class="sidebar-user">
-            <div class="sidebar-user-row">
-                <?php if ($navAvatarUrl): ?>
-                <img src="<?= $navAvatarUrl ?>" alt="Avatar" class="sidebar-avatar">
-                <?php else: ?>
-                <div class="sidebar-avatar-placeholder">🧑‍💻</div>
-                <?php endif; ?>
-                <div>
-                    <div class="sidebar-username">Spiller</div>
-                    <div class="sidebar-level">Level <?= $level ?> · <?= htmlspecialchars($levelTitle) ?></div>
-                </div>
+        <div class="hero-stats">
+            <div>
+                <div class="hero-stat-num">⚡ <?= number_format($xp) ?></div>
+                <div class="hero-stat-label">XP optjent</div>
             </div>
-            <div class="sidebar-xp-bar">
-                <div class="sidebar-xp-fill" style="width:<?= $xpPct ?>%"></div>
+            <div>
+                <div class="hero-stat-num">Lvl <?= $level ?></div>
+                <div class="hero-stat-label">Dit niveau</div>
             </div>
-            <div class="sidebar-xp-label">
-                <span><?= number_format($xp) ?> XP</span>
-                <span><?= number_format($nextXpThreshold) ?> XP</span>
+            <div>
+                <div class="hero-stat-num"><span class="accent"><?= $streak ?></span> 🔥</div>
+                <div class="hero-stat-label">Dages streak</div>
             </div>
         </div>
-    </aside>
+    </div>
+</section>
 
-    <!-- MAIN -->
-    <div class="main-content">
-
-        <!-- HERO -->
-        <section class="hero">
-            <div class="hero-bg"></div>
-            <div class="hero-overlay"></div>
-
-            <div class="hero-content">
-                <h1>Drop din rapport.<br><span>Vi gør den eksamen-klar.</span></h1>
-                <p>Upload din rapport og få interaktive aktiviteter, der gør dig klar til mundtlig eksamen.</p>
-
-                <div class="hero-actions">
-                    <button class="btn-hero" id="openUpload">📤 Upload rapport</button>
-                    <a href="#how" class="btn-secondary">⊙ Sådan virker det</a>
-                </div>
-
-                <div class="postit">Du er tættere på eksamen end du tror. 😊</div>
-            </div>
-
-        </section>
-
-        <!-- HOW IT WORKS -->
-        <section id="how" style="padding:1rem 2rem 1.5rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
-            <a href="<?= $qUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(124,58,237,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>quiz%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
-                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Quiz</div>
-                <div style="font-size:.8rem;color:var(--text-muted);">Multiple-choice baseret på rapportens kernebegreber</div>
-            </a>
-            <a href="<?= $cUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(6,182,212,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>cloze%20mode%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
-                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Cloze</div>
-                <div style="font-size:.8rem;color:var(--text-muted);">Udfyldningsopgaver der træner fagtermer</div>
-            </a>
-            <a href="<?= $bUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(249,115,22,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>boss%20battle%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
-                <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Boss Battle</div>
-                <div style="font-size:.8rem;color:var(--text-muted);">Åbne spørgsmål der tester dybdegående forståelse</div>
-            </a>
-        </section>
-
-        <!-- STATS BAR -->
-        <div class="stats-bar">
-            <div class="stats-bar-item">
-                <div class="stats-bar-label">XP</div>
-                <div class="stats-bar-value"><?= number_format($xp) ?> <span style="font-size:1rem;">⚡</span></div>
-                <div class="stats-bar-sub"><?= $xpToday > 0 ? '+' . $xpToday . ' XP i dag' : 'Begynd at optjene XP' ?></div>
-            </div>
-            <div class="stats-bar-item">
-                <div class="stats-bar-label">Level</div>
-                <div class="stats-bar-value"><?= $level ?></div>
-                <div class="stats-bar-sub">Næste: <?= number_format($nextXpThreshold - $xp) ?> XP</div>
-            </div>
-            <div class="stats-bar-item">
-                <div class="stats-bar-label">Streak</div>
-                <div class="stats-bar-value"><?= $streak ?> dage <span style="font-size:1rem;">🔥</span></div>
-                <div class="stats-bar-sub"><?= $streak >= 3 ? 'Du er on fire!' : 'Bliv ved hver dag!' ?></div>
-            </div>
-            <div class="stats-bar-item">
-                <div class="stats-bar-label">Eksamen Klar-score</div>
-                <div style="display:flex;align-items:center;gap:.65rem;margin-top:.15rem;">
-                    <?php
-                    $r = 22; $circ = 2 * M_PI * $r;
-                    $dash = $circ * $readiness / 100;
-                    ?>
-                    <div class="readiness-circle">
-                        <svg width="52" height="52" viewBox="0 0 52 52">
-                            <circle cx="26" cy="26" r="<?= $r ?>" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/>
-                            <circle cx="26" cy="26" r="<?= $r ?>" fill="none"
-                                stroke="<?= $readiness >= 70 ? '#06b6d4' : ($readiness >= 40 ? '#f97316' : '#7c3aed') ?>"
-                                stroke-width="5"
-                                stroke-dasharray="<?= round($dash, 1) ?> <?= round($circ, 1) ?>"
-                                stroke-linecap="round"/>
-                        </svg>
-                        <div class="pct-text"><?= $readiness ?>%</div>
-                    </div>
-                    <div class="readiness-desc"><?= $readiness >= 70 ? 'Du er godt på vej! 🎉' : ($readiness >= 40 ? 'Fortsæt!' : 'Upload en rapport') ?></div>
-                </div>
+<!-- ══════════ PLAYER BAR ══════════ -->
+<div class="player-bar-section">
+    <div class="player-bar-inner">
+        <div class="player-stat">
+            <span class="player-stat-icon">⚡</span>
+            <div>
+                <div class="player-stat-val"><?= number_format($xp) ?> XP</div>
+                <div class="player-stat-lbl">Samlet XP</div>
             </div>
         </div>
+        <div class="player-stat">
+            <span class="player-stat-icon">🏆</span>
+            <div>
+                <div class="player-stat-val">Level <?= $level ?></div>
+                <div class="player-stat-lbl"><?= htmlspecialchars(LevelDefinitions::get($level)['title'] ?? 'Nybegynder') ?></div>
+            </div>
+        </div>
+        <div class="player-stat">
+            <span class="player-stat-icon">🔥</span>
+            <div>
+                <div class="player-stat-val"><?= $streak ?> dage</div>
+                <div class="player-stat-lbl">Streak</div>
+            </div>
+        </div>
+        <div class="player-xp-wrap">
+            <div class="player-xp-label">
+                <span>Fremgang mod niveau <?= $level + 1 ?></span>
+                <span><?= $xpPct ?>%</span>
+            </div>
+            <div class="player-xp-bar">
+                <div class="player-xp-fill" style="width:<?= $xpPct ?>%"></div>
+            </div>
+        </div>
+        <a href="profile.php" class="btn-ghost" style="white-space:nowrap;">Se profil →</a>
+    </div>
+</div>
 
-    </div><!-- /main-content -->
+<!-- ══════════ FEATURES ══════════ -->
+<section class="features-section" id="features">
+    <div class="section-inner">
+        <div class="section-eyebrow">Læringsaktiviteter</div>
+        <h2 class="section-title">Tre måder at mestre dit pensum</h2>
+        <p class="section-sub">Hver aktivitet er genereret direkte fra din rapport og tilpasset til at styrke præcist det, du skal op i.</p>
 
-</div><!-- /app-shell -->
+        <div class="features-grid">
+            <!-- Quiz -->
+            <a href="<?= $qUrl ?>" class="feature-card" <?= $noReport ? 'onclick="openUpload(event)"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>quiz%20ikon.png" class="feature-card-img" alt="Quiz">
+                <div class="feature-card-tag tag-quiz">Quiz</div>
+                <h3>Multiple-choice Quiz</h3>
+                <p>Test din viden med spørgsmål baseret på rapportens kernebegreber. Optjen XP for hvert rigtigt svar.</p>
+                <span class="feature-card-arrow">Start quiz →</span>
+            </a>
 
-<!-- UPLOAD MODAL -->
+            <!-- Cloze -->
+            <a href="<?= $cUrl ?>" class="feature-card" <?= $noReport ? 'onclick="openUpload(event)"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>cloze%20mode%20ikon.png" class="feature-card-img" alt="Cloze">
+                <div class="feature-card-tag tag-cloze">Cloze</div>
+                <h3>Udfyldningsopgaver</h3>
+                <p>Træn fagtermer og centrale begreber ved at udfylde de manglende ord i sætninger fra din rapport.</p>
+                <span class="feature-card-arrow">Start cloze →</span>
+            </a>
+
+            <!-- Boss Battle -->
+            <a href="<?= $bUrl ?>" class="feature-card" <?= $noReport ? 'onclick="openUpload(event)"' : '' ?>>
+                <img src="<?= $AVATAR_BASE ?>boss%20battle%20ikon.png" class="feature-card-img" alt="Boss Battle">
+                <div class="feature-card-tag tag-boss">Boss Battle</div>
+                <h3>Boss Battle</h3>
+                <p>Besvar åbne spørgsmål og bevis din dybdegående forståelse. Det sværeste niveau — til dem der vil ace eksamen.</p>
+                <span class="feature-card-arrow">Kæmp mod bossen →</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════ HOW IT WORKS ══════════ -->
+<section id="how">
+    <div class="section-inner">
+        <div class="section-eyebrow">Kom i gang</div>
+        <h2 class="section-title">Fra rapport til eksamensparat på minutter</h2>
+        <p class="section-sub">ExamQuest analyserer din rapport og bygger personlige læringsaktiviteter automatisk — ingen opsætning krævet.</p>
+
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h4>Upload din rapport</h4>
+                <p>Træk og slip din PDF-rapport. Vi understøtter alle standardformater.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h4>Analysen starter</h4>
+                <p>Systemet identificerer kernebegreber, fagtermer og centrale pointer i rapporten.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h4>Vælg din aktivitet</h4>
+                <p>Quiz, cloze eller boss battle — vælg den aktivitet der passer til dit niveau.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h4>Optjen XP &amp; level op</h4>
+                <p>Lær ved at spille. Byg streak, optjen badges og se din fremgang i dashboard.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="cta-section">
+    <div class="section-inner">
+        <div class="section-eyebrow" style="text-align:center;">Klar til eksamen?</div>
+        <h2 class="section-title" style="text-align:center;">Start din læringsrejse nu</h2>
+        <p class="section-sub" style="text-align:center;margin:0 auto 2.5rem;">
+            Upload din rapport og gå fra usikker til eksamensparat — én aktivitet ad gangen.
+        </p>
+        <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;">
+            <button class="btn-cta" id="ctaUploadBtn">📤 Upload rapport</button>
+            <?php if ($latestReportId): ?>
+            <a href="<?= $qUrl ?>" class="btn-ghost">Fortsæt træning →</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="lp-footer">
+    <img src="<?= $LOGO_URL ?>" alt="ExamQuest" style="height:36px;width:auto;opacity:.7;">
+    <div class="lp-footer-links">
+        <a href="dashboard.php"    class="lp-footer-link">📊 Dashboard</a>
+        <a href="gamification.php" class="lp-footer-link">🏆 Badges</a>
+        <a href="profile.php"      class="lp-footer-link">👤 Profil</a>
+    </div>
+    <span class="lp-footer-copy">© 2026 ExamQuest</span>
+</footer>
+
+<!-- ══════════ UPLOAD MODAL ══════════ -->
 <div class="upload-overlay" id="uploadOverlay">
     <div class="upload-modal">
         <button class="modal-close" id="closeUpload">✕</button>
         <h2>📤 Upload din rapport</h2>
-        <p>Vi analyserer din PDF og genererer quiz, cloze og boss battle automatisk.</p>
+        <p class="desc">Vi analyserer din PDF og genererer quiz, cloze og boss battle automatisk.</p>
 
         <div id="message-area" class="message-area" role="alert" aria-live="polite"></div>
 
@@ -466,9 +564,31 @@ $noReport = !$latestReportId;
 <script src="js/app.js"></script>
 <script>
 const overlay = document.getElementById('uploadOverlay');
-document.getElementById('openUpload').addEventListener('click', () => overlay.classList.add('open'));
+
+function openUpload(e) {
+    if (e) e.preventDefault();
+    overlay.classList.add('open');
+}
+
+document.getElementById('heroUploadBtn').addEventListener('click', openUpload);
+document.getElementById('navUploadBtn').addEventListener('click', openUpload);
+document.getElementById('ctaUploadBtn').addEventListener('click', openUpload);
 document.getElementById('closeUpload').addEventListener('click', () => overlay.classList.remove('open'));
 overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+});
+
+// Darken nav on scroll
+window.addEventListener('scroll', () => {
+    document.querySelector('.lp-nav').style.background =
+        window.scrollY > 40 ? 'rgba(10,10,26,.97)' : 'rgba(10,10,26,.85)';
+});
 </script>
 </body>
 </html>
