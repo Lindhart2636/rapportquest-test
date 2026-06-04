@@ -370,7 +370,7 @@ function examScoreLabel(int $score): string
                         <td><?= htmlspecialchars($row['label'], ENT_QUOTES) ?></td>
                         <td><strong><?= $row['score'] ?>%</strong></td>
                         <td style="color:var(--text-muted)"><?= $row['weight'] ?></td>
-                        <td>
+                        <td style="width:80px;white-space:nowrap;">
                             <div class="breakdown-bar-wrap">
                                 <div class="breakdown-bar-fill" style="width:<?= $row['score'] ?>%"></div>
                             </div>
