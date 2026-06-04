@@ -393,7 +393,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         <button class="lp-nav-link" onclick="openAuthModal('login')"    style="cursor:pointer;background:none;border:none;font-family:inherit;">Log ind</button>
         <button class="lp-nav-cta"  onclick="openAuthModal('register')" style="cursor:pointer;border:none;font-family:inherit;">Opret konto</button>
         <?php endif; ?>
-        <button class="lp-nav-cta" id="navUploadBtn">📤 Upload</button>
+        <button class="lp-nav-cta" id="navUploadBtn"><img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/upload%20ikon%201.png" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:.35rem;"> Upload</button>
     </div>
 </nav>
 
@@ -412,7 +412,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             Upload din PDF-rapport og få automatisk genererede quiz, cloze-opgaver og boss battles, der træner dig i at mestre dit pensum til den mundtlige eksamen.
         </p>
         <div class="hero-actions">
-            <button class="btn-cta" id="heroUploadBtn">📤 Upload</button>
+            <button class="btn-cta" id="heroUploadBtn"><img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/upload%20ikon%201.png" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:.35rem;"> Upload</button>
             <a href="#features" class="btn-ghost">Se funktioner ↓</a>
         </div>
         <div class="hero-stats">
@@ -549,7 +549,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             Upload din rapport og gå fra usikker til eksamensparat — én aktivitet ad gangen.
         </p>
         <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;">
-            <button class="btn-cta" id="ctaUploadBtn">📤 Upload</button>
+            <button class="btn-cta" id="ctaUploadBtn"><img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/upload%20ikon%201.png" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:.35rem;"> Upload</button>
             <?php if ($latestReportId): ?>
             <a href="<?= $qUrl ?>" class="btn-ghost">Fortsæt træning →</a>
             <?php endif; ?>

@@ -413,31 +413,8 @@ function examScoreLabel(int $score): string
 
         <!-- Activity stats -->
         <?php if ($examData): ?>
-        <div class="dash-card">
-            <h3>Aktivitetsstatistik</h3>
-            <?php $s = $examData['stats']; ?>
-            <table style="width:100%;font-size:.875rem;border-collapse:collapse;">
-                <tr>
-                    <td style="padding:.35rem 0;color:var(--text-muted);">Total XP</td>
-                    <td style="text-align:right;font-weight:700;"><?= $s['total_xp'] ?></td>
-                </tr>
-                <tr>
-                    <td style="padding:.35rem 0;color:var(--text-muted);">Quiz-spørgsmål genereret</td>
-                    <td style="text-align:right;font-weight:700;"><?= $s['quiz_count'] ?></td>
-                </tr>
-                <tr>
-                    <td style="padding:.35rem 0;color:var(--text-muted);">Cloze-opgaver genereret</td>
-                    <td style="text-align:right;font-weight:700;"><?= $s['cloze_count'] ?></td>
-                </tr>
-                <tr>
-                    <td style="padding:.35rem 0;color:var(--text-muted);">Boss Battle-spørgsmål</td>
-                    <td style="text-align:right;font-weight:700;"><?= $s['boss_count'] ?></td>
-                </tr>
-                <tr>
-                    <td style="padding:.35rem 0;color:var(--text-muted);">Streak</td>
-                    <td style="text-align:right;font-weight:700;"><?= $s['streak_days'] ?> dage</td>
-                </tr>
-            </table>
+        <div class="dash-card" style="padding:0;overflow:hidden;">
+            <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/Post-it%20med%20stats%201.png" style="width:100%;height:auto;display:block;border-radius:var(--radius);" alt="Stats">
         </div>
         <?php endif; ?>
 
