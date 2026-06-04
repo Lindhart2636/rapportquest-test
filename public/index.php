@@ -208,13 +208,14 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         }
         .features-section-bg {
             position: absolute;
-            right: -80px; top: 50%;
-            transform: translateY(-50%);
-            width: 480px; height: 480px;
+            right: -60px; top: 0; bottom: 0;
+            width: auto; aspect-ratio: auto;
             background-image: url('<?= $AVATAR_BASE ?>Godt%20g%C3%A5et%20image.png');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
+            background-size: contain; background-repeat: no-repeat; background-position: right center;
             opacity: .12;
             pointer-events: none;
+            left: auto;
+            min-width: 40%;
         }
         .features-grid {
             display: grid;
