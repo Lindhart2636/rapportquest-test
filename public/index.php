@@ -221,7 +221,8 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         }
         .feature-card-img {
             width: 72px; height: 72px; object-fit: contain;
-            margin-bottom: 1.25rem;
+            margin: 0 auto 1.25rem;
+            display: block;
             filter: drop-shadow(0 0 12px rgba(124,58,237,.5));
         }
         .feature-card-tag {
