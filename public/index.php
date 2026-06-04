@@ -174,8 +174,9 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         .btn-ghost:hover { background: rgba(255,255,255,.16); }
         .hero-stats {
             display: flex; gap: 2.5rem; margin-top: 3rem;
-            flex-wrap: wrap;
+            flex-wrap: wrap; align-items: flex-start;
         }
+        .hero-stats > div { text-align: left; }
         .hero-stat-num {
             font-size: 1.9rem; font-weight: 900; color: #fff; line-height: 1;
         }
