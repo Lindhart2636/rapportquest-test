@@ -375,6 +375,20 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         <a href="dashboard.php" class="lp-nav-link lp-nav-icon-link">
             <img src="<?= $AVATAR_BASE ?>home%20ikon.png" class="lp-nav-icon" alt=""> Dashboard
         </a>
+        <?php
+        $_quizHref  = $latestReportId ? "quiz.php?id=$latestReportId"  : 'index.php';
+        $_clozeHref = $latestReportId ? "cloze.php?id=$latestReportId" : 'index.php';
+        $_bossHref  = $latestReportId ? "boss.php?id=$latestReportId"  : 'index.php';
+        ?>
+        <a href="<?= $_quizHref ?>"  class="lp-nav-link lp-nav-icon-link">
+            <img src="<?= $AVATAR_BASE ?>quiz%20ikon.png" class="lp-nav-icon" alt=""> Quiz
+        </a>
+        <a href="<?= $_clozeHref ?>" class="lp-nav-link lp-nav-icon-link">
+            <img src="<?= $AVATAR_BASE ?>cloze%20mode%20ikon.png" class="lp-nav-icon" alt=""> Cloze
+        </a>
+        <a href="<?= $_bossHref ?>"  class="lp-nav-link lp-nav-icon-link">
+            <img src="<?= $AVATAR_BASE ?>boss%20battle%20ikon.png" class="lp-nav-icon" alt=""> Boss
+        </a>
         <a href="gamification.php" class="lp-nav-link lp-nav-icon-link">
             <img src="<?= $AVATAR_BASE ?>bagdes%20ikon.png" class="lp-nav-icon" alt=""> Badges
         </a>
