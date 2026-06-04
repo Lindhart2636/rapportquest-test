@@ -201,7 +201,21 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         }
 
         /* ─── Features ─── */
-        .features-section { background: var(--surface); }
+        .features-section {
+            background: var(--surface);
+            position: relative;
+            overflow: hidden;
+        }
+        .features-section-bg {
+            position: absolute;
+            right: -80px; top: 50%;
+            transform: translateY(-50%);
+            width: 480px; height: 480px;
+            background-image: url('<?= $AVATAR_BASE ?>Godt%20g%C3%A5et%20image.png');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: .12;
+            pointer-events: none;
+        }
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -457,6 +471,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
 
 <!-- ══════════ FEATURES ══════════ -->
 <section class="features-section" id="features">
+    <div class="features-section-bg"></div>
     <div class="section-inner">
         <div class="section-eyebrow">Læringsaktiviteter</div>
         <h2 class="section-title">Tre måder at mestre dit pensum</h2>
