@@ -55,6 +55,10 @@ try {
 
 $currentPage = 'index.php';
 $LOGO_URL = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
+$qUrl     = $latestReportId ? "quiz.php?id={$latestReportId}"  : '#upload';
+$cUrl     = $latestReportId ? "cloze.php?id={$latestReportId}" : '#upload';
+$bUrl     = $latestReportId ? "boss.php?id={$latestReportId}"  : '#upload';
+$noReport = !$latestReportId;
 ?>
 <!DOCTYPE html>
 <html lang="da">
@@ -302,33 +306,27 @@ $LOGO_URL = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <?php
-        $qUrl    = $latestReportId ? "quiz.php?id={$latestReportId}"    : '#upload';
-        $cUrl    = $latestReportId ? "cloze.php?id={$latestReportId}"   : '#upload';
-        $bUrl    = $latestReportId ? "boss.php?id={$latestReportId}"    : '#upload';
-        $noReport = !$latestReportId;
-        ?>
         <nav class="sidebar-nav">
             <a href="index.php"     class="sidebar-link active">
-                <img src="<?= $AVATAR_BASE ?>upload%20icon.png" class="s-img" alt=""> Hjem
+                <span class="s-icon">🏠</span> Hjem
             </a>
-            <a href="<?= $qUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
-                <img src="<?= $AVATAR_BASE ?>Bogikon.png" class="s-img" alt=""> Quiz
+            <a href="<?= $qUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
+                <span class="s-icon">🎯</span> Quiz
             </a>
-            <a href="<?= $cUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
-                <img src="<?= $AVATAR_BASE ?>Holografisk%20dokument.png" class="s-img" alt=""> Cloze
+            <a href="<?= $cUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
+                <span class="s-icon">✏️</span> Cloze
             </a>
-            <a href="<?= $bUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>" <?= $noReport ? 'title="Upload en rapport først"' : '' ?>>
-                <img src="<?= $AVATAR_BASE ?>Korsede%20sv%C3%A6rd.png" class="s-img" alt=""> Boss Battle
+            <a href="<?= $bUrl ?>" class="sidebar-link <?= $noReport ? 'sidebar-disabled' : '' ?>">
+                <span class="s-icon">⚔️</span> Boss Battle
             </a>
             <a href="dashboard.php" class="sidebar-link">
-                <img src="<?= $AVATAR_BASE ?>Trof%C3%A6.png" class="s-img" alt=""> Statistik
+                <span class="s-icon">📊</span> Statistik
             </a>
             <a href="gamification.php" class="sidebar-link">
-                <img src="<?= $AVATAR_BASE ?>Stjernebadge.png" class="s-img" alt=""> Badges
+                <span class="s-icon">🏅</span> Badges
             </a>
             <a href="profile.php" class="sidebar-link">
-                <img src="<?= $AVATAR_BASE ?>Neon%20h%C3%A5ndtryk.png" class="s-img" alt=""> Profil
+                <span class="s-icon">👤</span> Profil
             </a>
         </nav>
 
@@ -379,17 +377,17 @@ $LOGO_URL = $AVATAR_BASE . 'ExamQuest%20logo%20med%20futuristisk%20design.png';
         <!-- HOW IT WORKS -->
         <section id="how" style="padding:1rem 2rem 1.5rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
             <a href="<?= $qUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(124,58,237,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>Bogikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <img src="<?= $AVATAR_BASE ?>quiz%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
                 <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Quiz</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Multiple-choice baseret på rapportens kernebegreber</div>
             </a>
             <a href="<?= $cUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(6,182,212,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>Holografisk%20dokument.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <img src="<?= $AVATAR_BASE ?>cloze%20mode%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
                 <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Cloze</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Udfyldningsopgaver der træner fagtermer</div>
             </a>
             <a href="<?= $bUrl ?>" style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;text-decoration:none;display:block;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 0 16px rgba(249,115,22,.4)'" onmouseout="this.style.boxShadow='none'">
-                <img src="<?= $AVATAR_BASE ?>Korsede%20sv%C3%A6rd.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
+                <img src="<?= $AVATAR_BASE ?>boss%20battle%20ikon.png" style="width:48px;height:48px;object-fit:contain;margin-bottom:.5rem;">
                 <div style="font-weight:700;margin-bottom:.25rem;color:#fff;">Boss Battle</div>
                 <div style="font-size:.8rem;color:var(--text-muted);">Åbne spørgsmål der tester dybdegående forståelse</div>
             </a>
