@@ -7,7 +7,6 @@ require_once __DIR__ . '/../config/database.php';
 use ExamQuest\Gamification\XpManager;
 use ExamQuest\Gamification\StreakManager;
 use ExamQuest\Gamification\LevelDefinitions;
-use ExamQuest\Dashboard\ExamReadinessCalculator;
 
 session_start();
 
@@ -43,9 +42,7 @@ try {
     $xpPct  = $range > 0 ? min(100, (int)round($xpInto / $range * 100)) : 100;
     $xpToday = $_SESSION['xp_today'] ?? 0;
 
-    $calc = new ExamReadinessCalculator($pdo);
-    $readinessData = $calc->calculate($sessionId);
-    $readiness = $readinessData['total'] ?? 0;
+    $readiness = 0;
 } catch (Exception $e) {
     // silently continue with defaults
 }
