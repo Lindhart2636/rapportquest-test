@@ -267,7 +267,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         }
         .steps-grid::before {
             content: '';
-            position: absolute; top: 28px; left: calc(12.5% + 28px); right: calc(12.5% + 28px);
+            position: absolute; top: calc(1.5rem + 28px); left: 12.5%; right: 12.5%;
             height: 2px;
             background: linear-gradient(90deg, var(--primary), var(--neon-blue));
             opacity: .3;
