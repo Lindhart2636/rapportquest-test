@@ -17,7 +17,10 @@ if ($_navAvatar) {
 }
 ?>
 <nav class="top-nav" aria-label="Hovednavigation">
-    <a href="index.php" class="nav-brand">🎮 ExamQuest</a>
+    <a href="index.php" class="nav-brand">
+        <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/logo%20til%20tech-brand.png" alt="ExamQuest" style="height:28px;width:auto;vertical-align:middle;margin-right:.4rem;">
+        ExamQuest
+    </a>
     <div class="nav-links">
         <?php if ($navReportId > 0): ?>
         <a href="quiz.php?id=<?= $navReportId ?>"       class="nav-link <?= $currentPage === 'quiz.php'         ? 'active' : '' ?>">🎯 Quiz</a>

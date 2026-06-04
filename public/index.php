@@ -1,95 +1,473 @@
-<?php declare(strict_types=1); ?>
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/database.php';
+
+use ExamQuest\Gamification\XpManager;
+use ExamQuest\Gamification\StreakManager;
+use ExamQuest\Gamification\LevelDefinitions;
+use ExamQuest\Dashboard\ExamReadinessCalculator;
+
+session_start();
+
+$xp = 0; $level = 1; $streak = 0; $readiness = 0;
+$levelTitle = 'Nybegynder';
+$nextXpThreshold = 100;
+$prevXpThreshold = 0;
+$xpPct = 0;
+$xpToday = 0;
+$currentAvatar = $_SESSION['avatar'] ?? '';
+
+$AVATAR_BASE = 'https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/';
+$navAvatarUrl = '';
+if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
+    $navAvatarUrl = $AVATAR_BASE . 'Avatar%20' . $m[1] . '.png';
+}
+
+try {
+    $pdo = getDbConnection();
+    $sessionId  = session_id();
+    $xpManager  = new XpManager($pdo);
+    $streakManager = new StreakManager($pdo);
+    $progress   = $xpManager->getProgress($sessionId);
+    $xp         = $progress['xp'];
+    $level      = $progress['level'];
+    $streak     = $progress['streak'];
+    $lvlDef     = LevelDefinitions::get($level);
+    $levelTitle = $lvlDef['title'] ?? 'Nybegynder';
+    $nextXpThreshold = $xpManager->nextLevelThreshold($level);
+    $prevXpThreshold = $xpManager->nextLevelThreshold($level - 1);
+    $range  = $nextXpThreshold - $prevXpThreshold;
+    $xpInto = $xp - $prevXpThreshold;
+    $xpPct  = $range > 0 ? min(100, (int)round($xpInto / $range * 100)) : 100;
+    $xpToday = $_SESSION['xp_today'] ?? 0;
+
+    $calc = new ExamReadinessCalculator($pdo);
+    $readinessData = $calc->calculate($sessionId);
+    $readiness = $readinessData['total'] ?? 0;
+} catch (Exception $e) {
+    // silently continue with defaults
+}
+
+$currentPage = 'index.php';
+$LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
+?>
 <!DOCTYPE html>
 <html lang="da">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExamQuest — Upload din rapport</title>
+    <title>ExamQuest — Drop din rapport</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ── Layout ── */
+        body { display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+
+        .app-shell {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            grid-template-rows: 56px 1fr auto;
+            min-height: 100vh;
+        }
+
+        /* ── Top bar ── */
+        .top-bar {
+            grid-column: 1 / -1;
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0 1.25rem;
+            background: var(--surface);
+            border-bottom: 1px solid rgba(255,255,255,.07);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .top-bar-logo {
+            display: flex; align-items: center; gap: .5rem;
+            text-decoration: none; flex-shrink: 0;
+        }
+        .top-bar-logo img { height: 32px; width: auto; }
+        .top-bar-logo span {
+            font-weight: 900; font-size: 1.1rem;
+            background: linear-gradient(135deg, #a78bfa, #06b6d4);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: .03em;
+        }
+        .top-bar-divider { flex: 1; }
+        .top-bar-stat {
+            display: flex; align-items: center; gap: .4rem;
+            background: rgba(255,255,255,.06); border-radius: 2rem;
+            padding: .3rem .9rem; font-size: .85rem; font-weight: 600;
+        }
+        .top-bar-stat .icon { font-size: 1rem; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid rgba(255,255,255,.07);
+            display: flex; flex-direction: column;
+            padding: 1.25rem 0;
+        }
+        .sidebar-nav { flex: 1; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .65rem 1.25rem;
+            color: var(--text-muted); text-decoration: none;
+            font-size: .9rem; font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: color .15s, background .15s, border-color .15s;
+        }
+        .sidebar-link:hover { color: var(--text); background: rgba(124,58,237,.1); }
+        .sidebar-link.active { color: #fff; background: rgba(124,58,237,.18); border-left-color: var(--primary); }
+        .sidebar-link .s-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+        .sidebar-user {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+        .sidebar-user-row {
+            display: flex; align-items: center; gap: .65rem;
+            margin-bottom: .6rem;
+        }
+        .sidebar-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            object-fit: cover; border: 2px solid var(--primary);
+            flex-shrink: 0;
+        }
+        .sidebar-avatar-placeholder {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--bg); border: 2px solid var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .sidebar-username { font-weight: 700; font-size: .85rem; }
+        .sidebar-level { font-size: .75rem; color: var(--text-muted); }
+        .sidebar-xp-bar { height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+        .sidebar-xp-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-blue)); border-radius: 3px; }
+        .sidebar-xp-label { display: flex; justify-content: space-between; font-size: .7rem; color: var(--text-muted); margin-top: .3rem; }
+
+        /* ── Main content ── */
+        .main-content {
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            padding: 2.5rem 2rem 1.5rem;
+            align-items: center;
+            flex: 1;
+        }
+        .hero-text h1 {
+            font-size: 2rem; font-weight: 900; line-height: 1.15;
+            margin-bottom: .4rem; color: #fff;
+        }
+        .hero-text h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-text p { color: var(--text-muted); font-size: .95rem; max-width: 380px; margin-bottom: 1.5rem; }
+
+        .hero-actions { display: flex; flex-direction: column; gap: .75rem; align-items: flex-start; }
+        .btn-hero {
+            display: inline-flex; align-items: center; gap: .5rem;
+            background: var(--primary); color: #fff;
+            padding: .75rem 1.75rem; border-radius: var(--radius);
+            font-weight: 700; font-size: 1rem; text-decoration: none;
+            border: none; cursor: pointer;
+            box-shadow: 0 0 20px rgba(124,58,237,.4);
+            transition: box-shadow .2s, transform .15s;
+        }
+        .btn-hero:hover { box-shadow: 0 0 30px rgba(124,58,237,.7); transform: translateY(-2px); }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: .5rem;
+            background: rgba(255,255,255,.07); color: var(--text);
+            padding: .65rem 1.25rem; border-radius: var(--radius);
+            font-weight: 600; font-size: .9rem; text-decoration: none;
+            border: 1px solid rgba(255,255,255,.12); cursor: pointer;
+            transition: background .2s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,.12); }
+
+        .postit {
+            background: #f5d042;
+            color: #1a1a1a;
+            padding: .75rem 1rem;
+            border-radius: 4px;
+            font-size: .82rem; font-weight: 600;
+            max-width: 200px;
+            box-shadow: 3px 3px 0 rgba(0,0,0,.2);
+            transform: rotate(-1.5deg);
+            margin-top: .5rem;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .hero-visual {
+            display: flex; flex-direction: column; align-items: center; gap: 1rem;
+            position: relative;
+        }
+        .hero-img {
+            width: 280px; height: 200px;
+            object-fit: cover; border-radius: var(--radius);
+            box-shadow: 0 0 40px rgba(124,58,237,.3);
+        }
+        .neon-sign {
+            background: rgba(0,0,0,.6);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: .75rem 1.25rem;
+            font-weight: 900; font-size: .9rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary);
+            box-shadow: 0 0 20px rgba(124,58,237,.4), inset 0 0 20px rgba(124,58,237,.1);
+            line-height: 1.6; text-align: center;
+        }
+        .neon-sign span { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+
+        /* Upload modal */
+        .upload-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.75); z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        .upload-overlay.open { display: flex; }
+        .upload-modal {
+            background: var(--surface); border-radius: var(--radius);
+            padding: 2rem; max-width: 480px; width: 90%;
+            box-shadow: 0 0 40px rgba(124,58,237,.5);
+            border: 1px solid var(--primary);
+        }
+        .upload-modal h2 { margin-bottom: .5rem; }
+        .upload-modal p { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.25rem; }
+        .modal-close {
+            float: right; background: none; border: none;
+            color: var(--text-muted); font-size: 1.4rem; cursor: pointer;
+        }
+
+        /* ── Bottom stats bar ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(255,255,255,.07);
+            border-top: 1px solid rgba(255,255,255,.07);
+        }
+        .stats-bar-item {
+            background: var(--surface);
+            padding: .9rem 1.25rem;
+        }
+        .stats-bar-label { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+        .stats-bar-value { font-size: 1.5rem; font-weight: 900; color: #fff; line-height: 1; }
+        .stats-bar-sub { font-size: .72rem; color: var(--text-muted); margin-top: .15rem; }
+        .stats-bar-value .accent { color: var(--accent); }
+
+        /* Readiness circle */
+        .readiness-wrap { display: flex; align-items: center; gap .75rem; }
+        .readiness-circle { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+        .readiness-circle svg { transform: rotate(-90deg); }
+        .readiness-circle .pct-text {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem; font-weight: 800; color: #fff;
+        }
+        .readiness-desc { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; }
+
+        @media (max-width: 900px) {
+            .app-shell { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .hero { grid-template-columns: 1fr; }
+            .hero-visual { display: none; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="site-header">
-            <div class="logo">
-                <span class="logo-icon">📜</span>
-                <h1>ExamQuest</h1>
+<div class="app-shell">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <a href="index.php" class="top-bar-logo">
+            <img src="<?= $LOGO_URL ?>" alt="ExamQuest logo">
+            <span>EXAMQUEST</span>
+        </a>
+
+        <div class="top-bar-divider"></div>
+
+        <div class="top-bar-stat">
+            <span class="icon">⚡</span>
+            Level <?= $level ?>
+        </div>
+        <div class="top-bar-stat">
+            <?= number_format($xp) ?> / <?= number_format($nextXpThreshold) ?> XP
+        </div>
+        <div class="top-bar-stat">
+            <span class="icon">🔥</span>
+            <?= $streak ?>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="index.php"        class="sidebar-link active"><span class="s-icon">🏠</span> Hjem</a>
+            <a href="gamification.php" class="sidebar-link"><span class="s-icon">🎮</span> Spil</a>
+            <a href="dashboard.php"    class="sidebar-link"><span class="s-icon">📊</span> Statistik</a>
+            <a href="gamification.php" class="sidebar-link"><span class="s-icon">🏅</span> Badges</a>
+            <a href="analyse.php"      class="sidebar-link"><span class="s-icon">📄</span> Rapporter</a>
+            <a href="profile.php"      class="sidebar-link"><span class="s-icon">⚙️</span> Indstillinger</a>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="sidebar-user-row">
+                <?php if ($navAvatarUrl): ?>
+                <img src="<?= $navAvatarUrl ?>" alt="Avatar" class="sidebar-avatar">
+                <?php else: ?>
+                <div class="sidebar-avatar-placeholder">🧑‍💻</div>
+                <?php endif; ?>
+                <div>
+                    <div class="sidebar-username">Spiller</div>
+                    <div class="sidebar-level">Level <?= $level ?> · <?= htmlspecialchars($levelTitle) ?></div>
+                </div>
             </div>
-            <p class="tagline">Gør din rapport til et læringsforløb</p>
-        </header>
+            <div class="sidebar-xp-bar">
+                <div class="sidebar-xp-fill" style="width:<?= $xpPct ?>%"></div>
+            </div>
+            <div class="sidebar-xp-label">
+                <span><?= number_format($xp) ?> XP</span>
+                <span><?= number_format($nextXpThreshold) ?> XP</span>
+            </div>
+        </div>
+    </aside>
 
-        <main class="upload-section">
-            <div class="upload-card">
-                <h2>Upload din rapport</h2>
-                <p class="upload-description">
-                    Upload en PDF-rapport og ExamQuest genererer automatisk quiz-spørgsmål,
-                    udfyldningsopgaver og en boss-battle ud fra indholdet.
-                </p>
+    <!-- MAIN -->
+    <div class="main-content">
 
-                <div id="message-area" class="message-area" role="alert" aria-live="polite"></div>
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-text">
+                <h1>Drop din rapport.<br><span>Vi gør den eksamen-klar.</span></h1>
+                <p>Upload din rapport og få interaktive aktiviteter, der gør dig klar til mundtlig eksamen.</p>
 
-                <form
-                    id="upload-form"
-                    method="POST"
-                    action="upload.php"
-                    enctype="multipart/form-data"
-                    novalidate
+                <div class="hero-actions">
+                    <button class="btn-hero" id="openUpload">📤 Upload rapport</button>
+                    <a href="#how" class="btn-secondary">⊙ Sådan virker det</a>
+                </div>
+
+                <div class="postit">
+                    Du er tættere på eksamen end du tror. 😊
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <img
+                    src="<?= $AVATAR_BASE ?>Hyggelig%20studieaften.png"
+                    alt="Studerende med laptop"
+                    class="hero-img"
                 >
-                    <div class="drop-zone" id="drop-zone">
-                        <span class="drop-icon">📄</span>
-                        <p>Træk og slip din PDF her</p>
-                        <p class="or-divider">— eller —</p>
-                        <label for="pdf-file" class="file-label">
-                            Vælg PDF-fil
-                            <input
-                                type="file"
-                                id="pdf-file"
-                                name="report"
-                                accept=".pdf,application/pdf"
-                                required
-                                class="file-input"
-                            >
-                        </label>
-                        <p id="file-name" class="file-name"></p>
-                    </div>
-
-                    <progress id="upload-progress" value="0" max="100" class="upload-progress"></progress>
-
-                    <button type="submit" class="btn-submit" id="submit-btn">
-                        Start læringsforløb
-                    </button>
-                </form>
+                <div class="neon-sign">
+                    FOCUS<br>
+                    <span>&gt; MOTIVATION</span><br>
+                    <span>&gt; RESULTS</span>
+                </div>
             </div>
+        </section>
 
-            <section class="features">
-                <div class="feature">
-                    <span class="feature-icon">🎯</span>
-                    <h3>Quiz</h3>
-                    <p>Multiple-choice spørgsmål baseret på rapportens kernebegreber</p>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">✏️</span>
-                    <h3>Udfyldning</h3>
-                    <p>Cloze-opgaver der træner din forståelse af fagtermer</p>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">⚔️</span>
-                    <h3>Boss Battle</h3>
-                    <p>Åbne spørgsmål der tester din dybdegående forståelse</p>
-                </div>
-            </section>
-        </main>
+        <!-- HOW IT WORKS -->
+        <section id="how" style="padding:1rem 2rem 1.5rem; display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
+            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
+                <div style="font-size:1.75rem;margin-bottom:.4rem;">🎯</div>
+                <div style="font-weight:700;margin-bottom:.25rem;">Quiz</div>
+                <div style="font-size:.8rem;color:var(--text-muted);">Multiple-choice baseret på rapportens kernebegreber</div>
+            </div>
+            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
+                <div style="font-size:1.75rem;margin-bottom:.4rem;">✏️</div>
+                <div style="font-weight:700;margin-bottom:.25rem;">Cloze</div>
+                <div style="font-size:.8rem;color:var(--text-muted);">Udfyldningsopgaver der træner fagtermer</div>
+            </div>
+            <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:center;">
+                <div style="font-size:1.75rem;margin-bottom:.4rem;">⚔️</div>
+                <div style="font-weight:700;margin-bottom:.25rem;">Boss Battle</div>
+                <div style="font-size:.8rem;color:var(--text-muted);">Åbne spørgsmål der tester dybdegående forståelse</div>
+            </div>
+        </section>
 
-        <footer class="site-footer">
-            <p>
-                <a href="dashboard.php" style="color:var(--primary);font-weight:600;text-decoration:none;">📊 Dashboard</a>
-                &nbsp;·&nbsp;
-                <a href="gamification.php" style="color:var(--primary);font-weight:600;text-decoration:none;">🏆 Gamification</a>
-                &nbsp;·&nbsp;
-                &copy; 2026 ExamQuest
-            </p>
-        </footer>
+        <!-- STATS BAR -->
+        <div class="stats-bar">
+            <div class="stats-bar-item">
+                <div class="stats-bar-label">XP</div>
+                <div class="stats-bar-value"><?= number_format($xp) ?> <span style="font-size:1rem;">⚡</span></div>
+                <div class="stats-bar-sub"><?= $xpToday > 0 ? '+' . $xpToday . ' XP i dag' : 'Begynd at optjene XP' ?></div>
+            </div>
+            <div class="stats-bar-item">
+                <div class="stats-bar-label">Level</div>
+                <div class="stats-bar-value"><?= $level ?></div>
+                <div class="stats-bar-sub">Næste: <?= number_format($nextXpThreshold - $xp) ?> XP</div>
+            </div>
+            <div class="stats-bar-item">
+                <div class="stats-bar-label">Streak</div>
+                <div class="stats-bar-value"><?= $streak ?> dage <span style="font-size:1rem;">🔥</span></div>
+                <div class="stats-bar-sub"><?= $streak >= 3 ? 'Du er on fire!' : 'Bliv ved hver dag!' ?></div>
+            </div>
+            <div class="stats-bar-item">
+                <div class="stats-bar-label">Eksamen Klar-score</div>
+                <div style="display:flex;align-items:center;gap:.65rem;margin-top:.15rem;">
+                    <?php
+                    $r = 22; $circ = 2 * M_PI * $r;
+                    $dash = $circ * $readiness / 100;
+                    ?>
+                    <div class="readiness-circle">
+                        <svg width="52" height="52" viewBox="0 0 52 52">
+                            <circle cx="26" cy="26" r="<?= $r ?>" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/>
+                            <circle cx="26" cy="26" r="<?= $r ?>" fill="none"
+                                stroke="<?= $readiness >= 70 ? '#06b6d4' : ($readiness >= 40 ? '#f97316' : '#7c3aed') ?>"
+                                stroke-width="5"
+                                stroke-dasharray="<?= round($dash, 1) ?> <?= round($circ, 1) ?>"
+                                stroke-linecap="round"/>
+                        </svg>
+                        <div class="pct-text"><?= $readiness ?>%</div>
+                    </div>
+                    <div class="readiness-desc"><?= $readiness >= 70 ? 'Du er godt på vej! 🎉' : ($readiness >= 40 ? 'Fortsæt!' : 'Upload en rapport') ?></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /main-content -->
+
+</div><!-- /app-shell -->
+
+<!-- UPLOAD MODAL -->
+<div class="upload-overlay" id="uploadOverlay">
+    <div class="upload-modal">
+        <button class="modal-close" id="closeUpload">✕</button>
+        <h2>📤 Upload din rapport</h2>
+        <p>Vi analyserer din PDF og genererer quiz, cloze og boss battle automatisk.</p>
+
+        <div id="message-area" class="message-area" role="alert" aria-live="polite"></div>
+
+        <form id="upload-form" method="POST" action="upload.php" enctype="multipart/form-data" novalidate>
+            <div class="drop-zone" id="drop-zone">
+                <span class="drop-icon">📄</span>
+                <p>Træk og slip din PDF her</p>
+                <p class="or-divider">— eller —</p>
+                <label for="pdf-file" class="file-label">
+                    Vælg PDF-fil
+                    <input type="file" id="pdf-file" name="report" accept=".pdf,application/pdf" required class="file-input">
+                </label>
+                <p id="file-name" class="file-name"></p>
+            </div>
+            <progress id="upload-progress" value="0" max="100" class="upload-progress"></progress>
+            <button type="submit" class="btn-submit" id="submit-btn">Start læringsforløb</button>
+        </form>
     </div>
+</div>
 
-    <script src="js/app.js"></script>
+<script src="js/app.js"></script>
+<script>
+const overlay = document.getElementById('uploadOverlay');
+document.getElementById('openUpload').addEventListener('click', () => overlay.classList.add('open'));
+document.getElementById('closeUpload').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+</script>
 </body>
 </html>
