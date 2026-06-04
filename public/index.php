@@ -274,7 +274,6 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
     <header class="top-bar">
         <a href="index.php" class="top-bar-logo">
             <img src="<?= $LOGO_URL ?>" alt="ExamQuest logo">
-            <span>EXAMQUEST</span>
         </a>
 
         <div class="top-bar-divider"></div>
