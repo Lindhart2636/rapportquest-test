@@ -417,20 +417,6 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             <button class="btn-cta" id="heroUploadBtn"><img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/upload%20ikon%201.png" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:.35rem;"> Upload</button>
             <a href="#features" class="btn-ghost">Se funktioner ↓</a>
         </div>
-        <div class="hero-stats">
-            <div>
-                <div class="hero-stat-num">⚡ <?= number_format($xp) ?></div>
-                <div class="hero-stat-label">XP optjent</div>
-            </div>
-            <div>
-                <div class="hero-stat-num">Lvl <?= $level ?></div>
-                <div class="hero-stat-label">Dit niveau</div>
-            </div>
-            <div>
-                <div class="hero-stat-num"><span class="accent"><?= $streak ?></span> 🔥</div>
-                <div class="hero-stat-label">Dages streak</div>
-            </div>
-        </div>
     </div>
 </section>
 
