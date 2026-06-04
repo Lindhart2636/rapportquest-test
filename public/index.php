@@ -379,7 +379,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
         <button class="lp-nav-link" onclick="openAuthModal('login')"    style="cursor:pointer;background:none;border:none;font-family:inherit;">Log ind</button>
         <button class="lp-nav-cta"  onclick="openAuthModal('register')" style="cursor:pointer;border:none;font-family:inherit;">Opret konto</button>
         <?php endif; ?>
-        <button class="lp-nav-cta" id="navUploadBtn">📤 Upload rapport</button>
+        <button class="lp-nav-cta" id="navUploadBtn">📤 Upload</button>
     </div>
 </nav>
 
@@ -398,7 +398,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             Upload din PDF-rapport og få automatisk genererede quiz, cloze-opgaver og boss battles, der træner dig i at mestre dit pensum til den mundtlige eksamen.
         </p>
         <div class="hero-actions">
-            <button class="btn-cta" id="heroUploadBtn">📤 Upload rapport nu</button>
+            <button class="btn-cta" id="heroUploadBtn">📤 Upload</button>
             <a href="#features" class="btn-ghost">Se funktioner ↓</a>
         </div>
         <div class="hero-stats">
@@ -534,7 +534,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
             Upload din rapport og gå fra usikker til eksamensparat — én aktivitet ad gangen.
         </p>
         <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;">
-            <button class="btn-cta" id="ctaUploadBtn">📤 Upload rapport</button>
+            <button class="btn-cta" id="ctaUploadBtn">📤 Upload</button>
             <?php if ($latestReportId): ?>
             <a href="<?= $qUrl ?>" class="btn-ghost">Fortsæt træning →</a>
             <?php endif; ?>
@@ -557,7 +557,7 @@ if ($currentAvatar && preg_match('/^avatar-(\d+)$/', $currentAvatar, $m)) {
 <div class="upload-overlay" id="uploadOverlay">
     <div class="upload-modal">
         <button class="modal-close" id="closeUpload">✕</button>
-        <h2>📤 Upload din rapport</h2>
+        <h2>📤 Upload</h2>
         <p class="desc">Vi analyserer din PDF og genererer quiz, cloze og boss battle automatisk.</p>
 
         <div id="message-area" class="message-area" role="alert" aria-live="polite"></div>
