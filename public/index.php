@@ -149,22 +149,35 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
 
         /* ── Hero ── */
         .hero {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 2rem;
-            padding: 2.5rem 2rem 1.5rem;
-            align-items: center;
+            position: relative;
+            overflow: hidden;
             flex: 1;
+            min-height: 320px;
         }
-        .hero-text h1 {
+        .hero-bg {
+            position: absolute; inset: 0;
+            background-image: url('<?= $AVATAR_BASE ?>Hyggelig%20studieaften.png');
+            background-size: cover; background-position: center top;
+            filter: brightness(.45);
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to right, rgba(10,10,26,.85) 45%, rgba(10,10,26,.2));
+        }
+        .hero-content {
+            position: relative; z-index: 1;
+            padding: 2.5rem 2rem 2rem;
+            max-width: 480px;
+        }
+        .hero-content h1 {
             font-size: 2rem; font-weight: 900; line-height: 1.15;
             margin-bottom: .4rem; color: #fff;
         }
-        .hero-text h1 span {
+        .hero-content h1 span {
             background: linear-gradient(135deg, var(--primary), var(--neon-blue));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .hero-text p { color: var(--text-muted); font-size: .95rem; max-width: 380px; margin-bottom: 1.5rem; }
+        .hero-content p { color: rgba(255,255,255,.75); font-size: .95rem; margin-bottom: 1.5rem; }
 
         .hero-actions { display: flex; flex-direction: column; gap: .75rem; align-items: flex-start; }
         .btn-hero {
@@ -179,38 +192,17 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
         .btn-hero:hover { box-shadow: 0 0 30px rgba(124,58,237,.7); transform: translateY(-2px); }
         .btn-secondary {
             display: inline-flex; align-items: center; gap: .5rem;
-            background: rgba(255,255,255,.07); color: var(--text);
+            background: rgba(255,255,255,.1); color: #fff;
             padding: .65rem 1.25rem; border-radius: var(--radius);
             font-weight: 600; font-size: .9rem; text-decoration: none;
-            border: 1px solid rgba(255,255,255,.12); cursor: pointer;
+            border: 1px solid rgba(255,255,255,.2); cursor: pointer;
             transition: background .2s;
         }
-        .btn-secondary:hover { background: rgba(255,255,255,.12); }
+        .btn-secondary:hover { background: rgba(255,255,255,.18); }
 
-        .postit {
-            background: #f5d042;
-            color: #1a1a1a;
-            padding: .75rem 1rem;
-            border-radius: 4px;
-            font-size: .82rem; font-weight: 600;
-            max-width: 200px;
-            box-shadow: 3px 3px 0 rgba(0,0,0,.2);
-            transform: rotate(-1.5deg);
-            margin-top: .5rem;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-        }
-
-        .hero-visual {
-            display: flex; flex-direction: column; align-items: center; gap: 1rem;
-            position: relative;
-        }
-        .hero-img {
-            width: 280px; height: 200px;
-            object-fit: cover; border-radius: var(--radius);
-            box-shadow: 0 0 40px rgba(124,58,237,.3);
-        }
         .neon-sign {
-            background: rgba(0,0,0,.6);
+            position: absolute; bottom: 1.5rem; right: 1.5rem;
+            background: rgba(0,0,0,.65);
             border: 2px solid var(--primary);
             border-radius: 8px;
             padding: .75rem 1.25rem;
@@ -218,9 +210,18 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
             color: #fff;
             text-shadow: 0 0 10px var(--primary);
             box-shadow: 0 0 20px rgba(124,58,237,.4), inset 0 0 20px rgba(124,58,237,.1);
-            line-height: 1.6; text-align: center;
+            line-height: 1.6; text-align: center; z-index: 1;
         }
         .neon-sign span { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+
+        .postit {
+            background: #f5d042; color: #1a1a1a;
+            padding: .65rem .9rem; border-radius: 4px;
+            font-size: .82rem; font-weight: 600; max-width: 210px;
+            box-shadow: 3px 3px 0 rgba(0,0,0,.25);
+            transform: rotate(-1.5deg); margin-top: .75rem;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
 
         /* Upload modal */
         .upload-overlay {
@@ -342,7 +343,10 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
 
         <!-- HERO -->
         <section class="hero">
-            <div class="hero-text">
+            <div class="hero-bg"></div>
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
                 <h1>Drop din rapport.<br><span>Vi gør den eksamen-klar.</span></h1>
                 <p>Upload din rapport og få interaktive aktiviteter, der gør dig klar til mundtlig eksamen.</p>
 
@@ -351,22 +355,13 @@ $LOGO_URL = $AVATAR_BASE . 'logo%20til%20tech-brand.png';
                     <a href="#how" class="btn-secondary">⊙ Sådan virker det</a>
                 </div>
 
-                <div class="postit">
-                    Du er tættere på eksamen end du tror. 😊
-                </div>
+                <div class="postit">Du er tættere på eksamen end du tror. 😊</div>
             </div>
 
-            <div class="hero-visual">
-                <img
-                    src="<?= $AVATAR_BASE ?>Hyggelig%20studieaften.png"
-                    alt="Studerende med laptop"
-                    class="hero-img"
-                >
-                <div class="neon-sign">
-                    FOCUS<br>
-                    <span>&gt; MOTIVATION</span><br>
-                    <span>&gt; RESULTS</span>
-                </div>
+            <div class="neon-sign">
+                FOCUS<br>
+                <span>&gt; MOTIVATION</span><br>
+                <span>&gt; RESULTS</span>
             </div>
         </section>
 
