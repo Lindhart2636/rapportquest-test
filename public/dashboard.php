@@ -413,8 +413,8 @@ function examScoreLabel(int $score): string
 
         <!-- Activity stats -->
         <?php if ($examData): ?>
-        <div class="dash-card" style="padding:0;overflow:hidden;">
-            <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/Post-it%20med%20stats%201.png" style="width:100%;height:auto;display:block;border-radius:var(--radius);" alt="Stats">
+        <div class="dash-card" style="padding:0;overflow:hidden;grid-column:span 1;max-width:100%;">
+            <img src="https://raw.githubusercontent.com/alexharibo/rapportquest/main/Visuel%20guides/Post-it%20med%20stats%201.png" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--radius);" alt="Stats">
         </div>
         <?php endif; ?>
 
