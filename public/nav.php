@@ -78,9 +78,15 @@ body { padding-top: 76px; }
         <a href="<?= $_dashHref ?>" class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'dashboard.php' ? 'active' : '' ?>">
             <img src="<?= $_AVATAR_BASE ?>home%20ikon.png" class="lp-nav-icon" alt=""> Dashboard
         </a>
-        <a href="<?= $_quizHref ?>"  class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'quiz.php'  ? 'active' : '' ?>">🎯 Quiz</a>
-        <a href="<?= $_clozeHref ?>" class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'cloze.php' ? 'active' : '' ?>">✏️ Cloze</a>
-        <a href="<?= $_bossHref ?>"  class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'boss.php'  ? 'active' : '' ?>">⚔️ Boss</a>
+        <a href="<?= $_quizHref ?>"  class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'quiz.php'  ? 'active' : '' ?>">
+            <img src="<?= $_AVATAR_BASE ?>quiz%20ikon.png" class="lp-nav-icon" alt=""> Quiz
+        </a>
+        <a href="<?= $_clozeHref ?>" class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'cloze.php' ? 'active' : '' ?>">
+            <img src="<?= $_AVATAR_BASE ?>cloze%20mode%20ikon.png" class="lp-nav-icon" alt=""> Cloze
+        </a>
+        <a href="<?= $_bossHref ?>"  class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'boss.php'  ? 'active' : '' ?>">
+            <img src="<?= $_AVATAR_BASE ?>boss%20battle%20ikon.png" class="lp-nav-icon" alt=""> Boss
+        </a>
         <a href="gamification.php" class="lp-nav-link lp-nav-icon-link <?= $currentPage === 'gamification.php' ? 'active' : '' ?>">
             <img src="<?= $_AVATAR_BASE ?>bagdes%20ikon.png" class="lp-nav-icon" alt=""> Badges
         </a>
